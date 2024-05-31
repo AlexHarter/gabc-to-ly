@@ -1,0 +1,221 @@
+#+TITLE: gabc-to-ly.py main org file
+#+AUTHOR: Alex Harter
+#+PROPERTY: header-args :tangle yes :tangle main.py
+[[file:reference/table_of_neumes.pdf][Table of Neumes]]
+
+* import libraries
+#+begin_src python
+#import regex as re
+#import pandas as pd
+#+end_src
+
+* import gabc file and split
+#+begin_src python
+example_gabc_file_path = "reference/example.gabc"
+
+with open(example_gabc_file_path, 'r') as file:
+    gabc = file.read()
+
+gabc_header = gabc.split("%%")[0]
+gabc_body = gabc.split("%%")[1]
+#+end_src
+
+* parse gabc header
+** parse gabc header into dictionary
+#+begin_src python
+gabc_header_entries = gabc_header.strip().split(";\n")
+gabc_header_dictionary = {}
+for entry in gabc_header_entries:
+    key, value = entry.split(":", 1) # in case there are semicolons in the value
+    gabc_header_dictionary.update({key.strip(): value.strip()})
+#+end_src
+
+** convert to ly metadeta
+*** TODO reference [[https://lilypond.org/doc/v2.23/Documentation/notation/creating-output-file-metadata][format]] to properly insert dictionary entries
+- interpolate from the ly template
+#+begin_src python
+ly_metadata = """
+
+#+end_src
+* parse gabc body
+** data for parsing body
+#+begin_src python
+gabc_positions_with_ints = {
+    'a': 0, 
+    'b': 1, 
+    'c': 2, 
+    'd': 3, 
+    'e': 4, 
+    'f': 5, 
+    'g': 6, 
+    'h': 7, 
+    'i': 8, 
+    'j': 9, 
+    'k': 10, 
+    'l': 11, 
+    'm': 12 
+}
+gabc_positions = gabc_positions_with_ints.keys()
+clefs_with_position_of_do = {
+    'c1': 3, 
+    'c2': 5, 
+    'c3': 7, 
+    'c4': 9, 
+    'f1': 0, 
+    'f2': 2, 
+    'f3': 4, 
+    'f4': 6 
+}
+clefs = clefs_with_position_of_do.keys()
+distance_from_do_with_ly_pitches = {
+    -9:'a',
+    -8:'b',
+    -7:'c',
+    -6:'d',
+    -5:'e',
+    -4:'f',
+    -3:'g',
+    -2:'a',
+    -1:'b',
+    0:'c',
+    1:'d',
+    2:'e',
+    3:'f',
+    4:'g',
+    5:'a',
+    6:'b'
+}
+
+
+# possible lilypond pitches from gregorian chant according to revised editions, where c is do
+solfege_with_ly_pitches = {
+    'Do':'c',
+    'Di':'cis',
+    'Re':'d',
+    'Me':'ees',
+    'Mi':'e',
+    'Fa':'f',
+    'Fi':'fis',
+    'Sol':'g',
+    'Si':'gis',
+    'Le':'aes',
+    'La':'a',
+    'Li':'ais',
+    'Te':'bes',
+    'Ti':'b'
+}
+
+# this program is still useful even without rhythms
+possible_rhythms = {
+    'r': '16',
+    '': '8',
+    '_': '4',
+    '._': '4', #TODO fix for dotted quarter note
+    '.': '2'
+}
+#+end_src
+
+** extract gabc clef
+#+begin_src python
+clef = "c4" # default clef if not defined in Body
+toggle = False #TODO give a more descriptive variable name
+for i, c in enumerate(gabc_body):
+    if c is "(":
+        if gabc_body[i+1, i+2] in clefs:
+            clef = gabc_body[i+1, i+2]
+        else:
+            break
+#+end_src
+
+** extract gabc lyrics
+#+begin_src python
+gabc_lyrics = ""
+toggle = False
+for c in gabc_body:
+    match c:
+        case ")":
+            toggle = True
+        case "(":
+            toggle = False
+        case other:
+            if toggle is True:
+                gabc_lyrics += c
+#+end_src
+
+** extract gabc melody
+#+begin_src python
+
+class Note:
+    def __init__(self, pitch, octave, rhythm, accidental=None, liquescence=None):
+        self.pitch = pitch
+        self.octave = octave
+        self.duration = duration
+        self.accidental = accidental
+        self.liquescence = liquescence
+
+    def __str__(self):
+        return f""
+
+class Syllable:
+    def __init__(self, )
+
+gabc_melody = ""
+clef_toggle = False # to account for the clef in round brackets
+parenthesis_toggle = False
+main_toggle = False
+for c in gabc_body:
+    match c:
+        case "(":
+            if first_toggle is True:
+                main_toggle = True
+                parenthesis_toggle = True
+            elif first_toggle is False:
+                first_toggle = True
+        case ")":
+            main_toggle = False
+            gabc_melody += ")"
+        case other:
+            if main_toggle is True:
+                gabc_melody += c
+                if parenthesis_toggle = True:
+                    gabc_melody += "("
+                    parenthesis_toggle = False
+#+end_src
+
+* convert to lilypond
+** convert melody to lilypond
+#+begin_src python
+clef = 'c4' #for testing
+def gabc_position_to_ly_pitch(clef, gabc_position): # keep this method 
+    distance_from_do = gabc_positions_with_ints[gabc_position] - clefs_with_position_of_do[clef]
+    ly_pitch = distance_from_do_with_ly_pitches[distance_from_do]
+    return ly_pitch
+
+ly_melody = "" #TODO should I initialize this with gabc_melody or add to it as I parse gabc melody?
+for c in gabc_melody:
+    if c in gabc_positions:
+        ly_pitch = gabc_position_to_ly_pitch(clef, c)
+        ly_melody += (ly_pitch + " ")
+#+end_src
+
+** convert lyrics to lilypond
+- still useful even if incomplete
+#+begin_src python
+ly_lyrics = gabc_lyrics
+# TODO add lyrics hyphenation
+# - do this when the program is basically functional
+#+end_src
+
+* output
+#+begin_src python
+with open("template.ly", "r") as file:
+    template = file.read()
+
+template_with_melody = template.replace("% ly_melody", ly_melody)
+template_with_melody_and_lyrics = template_with_melody.replace("% ly_lyrics", ly_lyrics)
+
+
+with open("chant.ly", "w") as file:
+    file.write(template_with_melody_and_lyrics)
+#+end_src
+
