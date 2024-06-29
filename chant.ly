@@ -13,11 +13,11 @@ global = {
 
 melody = \relative c'' {
   \global
-  % ly_melody
+  g8c8c8c8c4a4a8a4b8c4d8c8c8e8e8c4b4
 }
 
 text = \lyricmode {
-  % ly_lyrics
+    -- D -- E -- u s   -- I -- s -- r -- a -- e l  *
 }
 
 \score {

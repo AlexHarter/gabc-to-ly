@@ -1,0 +1,656 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2024-06-26 Wed 19:42 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>gabc-to-ly.py main org file</title>
+<meta name="author" content="Alex Harter" />
+<meta name="generator" content="Org Mode" />
+<style type="text/css">
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">gabc-to-ly.py main org file</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org43ec719">1. <span class="todo WAIT">WAIT</span> init</a>
+<ul>
+<li><a href="#orge7e42e8">1.1. <span class="done DONE">DONE</span> import libraries</a></li>
+<li><a href="#orge075012">1.2. <span class="todo WAIT">WAIT</span> take in user args</a></li>
+</ul>
+</li>
+<li><a href="#orge831118">2. <span class="todo TODO">TODO</span> parse gabc to lilypond</a>
+<ul>
+<li><a href="#orgc9694ee">2.1. <span class="done DONE">DONE</span> import and split gabc</a></li>
+<li><a href="#orgec1c71e">2.2. <span class="done DONE">DONE</span> parse gabc header to ly metadata</a>
+<ul>
+<li><a href="#org3ca2397">2.2.1. <span class="done DONE">DONE</span> parse gabc header into dictionary</a></li>
+<li><a href="#org4eb4334">2.2.2. <span class="done DONE">DONE</span> reference format to properly interpolate dictionary entries</a></li>
+</ul>
+</li>
+<li><a href="#orgf28d241">2.3. <span class="todo TODO">TODO</span> parse gabc body</a>
+<ul>
+<li><a href="#org314dcd0">2.3.1. <span class="done DONE">DONE</span> parse gabc lyrics to ly lyrics</a></li>
+<li><a href="#orge9ecca0">2.3.2. <span class="todo TODO">TODO</span> parse gabc melody to ly melody</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org5fe1b4b">3. <span class="todo WAIT">WAIT</span> output</a>
+<ul>
+<li><a href="#org08c3268">3.1. Lilypond template</a></li>
+<li><a href="#org3cef687">3.2. Import template</a></li>
+<li><a href="#org8a62379">3.3. Interpolate template with data</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+<a href="reference/table_of_neumes.pdf">Table of Neumes</a>
+</p>
+<ul class="org-ul">
+<li class="off"><code>[&#xa0;]</code> revise datasets to only have gabc and ly, no intermediary</li>
+</ul>
+<div id="outline-container-org43ec719" class="outline-2">
+<h2 id="org43ec719"><span class="section-number-2">1.</span> <span class="todo WAIT">WAIT</span> init</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-orge7e42e8" class="outline-3">
+<h3 id="orge7e42e8"><span class="section-number-3">1.1.</span> <span class="done DONE">DONE</span> import libraries</h3>
+<div class="outline-text-3" id="text-1-1">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cba6f7;">import</span> argparse
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge075012" class="outline-3">
+<h3 id="orge075012"><span class="section-number-3">1.2.</span> <span class="todo WAIT">WAIT</span> take in user args</h3>
+<div class="outline-text-3" id="text-1-2">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #6c7086;">#</span><span style="color: #f9e2af; font-weight: bold;">TODO</span><span style="color: #6c7086;"> take in user args</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orge831118" class="outline-2">
+<h2 id="orge831118"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> parse gabc to lilypond</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-orgc9694ee" class="outline-3">
+<h3 id="orgc9694ee"><span class="section-number-3">2.1.</span> <span class="done DONE">DONE</span> import and split gabc</h3>
+<div class="outline-text-3" id="text-2-1">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">example_gabc_file_path</span> <span style="color: #89dceb;">=</span> <span style="color: #a6e3a1;">"reference/example.gabc"</span>
+<span style="color: #cba6f7;">with</span> <span style="color: #f38ba8;">open</span>(example_gabc_file_path, <span style="color: #a6e3a1;">'r'</span>) <span style="color: #cba6f7;">as</span> <span style="color: #f38ba8;">file</span>:
+    <span style="color: #cdd6f4;">gabc</span> <span style="color: #89dceb;">=</span> <span style="color: #f38ba8;">file</span>.read()
+
+<span style="color: #cdd6f4;">gabc_header</span> <span style="color: #89dceb;">=</span> gabc.split(<span style="color: #a6e3a1;">"%%"</span>)[<span style="color: #fab387;">0</span>]
+<span style="color: #cdd6f4;">gabc_body</span> <span style="color: #89dceb;">=</span> gabc.split(<span style="color: #a6e3a1;">"%%"</span>)[<span style="color: #fab387;">1</span>]
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgec1c71e" class="outline-3">
+<h3 id="orgec1c71e"><span class="section-number-3">2.2.</span> <span class="done DONE">DONE</span> parse gabc header to ly metadata</h3>
+<div class="outline-text-3" id="text-2-2">
+</div>
+<div id="outline-container-org3ca2397" class="outline-4">
+<h4 id="org3ca2397"><span class="section-number-4">2.2.1.</span> <span class="done DONE">DONE</span> parse gabc header into dictionary</h4>
+<div class="outline-text-4" id="text-2-2-1">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">gabc_header_entries</span> <span style="color: #89dceb;">=</span> gabc_header.strip().split(<span style="color: #a6e3a1;">";</span><span style="color: #fab387;">\n</span><span style="color: #a6e3a1;">"</span>)
+<span style="color: #cdd6f4;">gabc_header_dictionary</span> <span style="color: #89dceb;">=</span> {}
+<span style="color: #cba6f7;">for</span> entry <span style="color: #cba6f7;">in</span> gabc_header_entries:
+    <span style="color: #cdd6f4;">key</span>, <span style="color: #cdd6f4;">value</span> <span style="color: #89dceb;">=</span> entry.split(<span style="color: #a6e3a1;">":"</span>, <span style="color: #fab387;">1</span>) <span style="color: #6c7086;"># </span><span style="color: #6c7086;">in case there are semicolons in the value</span>
+    gabc_header_dictionary.update({key.strip(): value.strip()})
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4eb4334" class="outline-4">
+<h4 id="org4eb4334"><span class="section-number-4">2.2.2.</span> <span class="done DONE">DONE</span> reference <a href="https://lilypond.org/doc/v2.23/Documentation/notation/creating-output-file-metadata">format</a> to properly interpolate dictionary entries</h4>
+<div class="outline-text-4" id="text-2-2-2">
+<ul class="org-ul">
+<li>interpolate from the ly template</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">ly_metadata</span> <span style="color: #89dceb;">=</span> []
+<span style="color: #cba6f7;">for</span> entry <span style="color: #cba6f7;">in</span> gabc_header_dictionary:
+    ly_metadata.add(f<span style="color: #a6e3a1;">"</span>{entry.key()}<span style="color: #a6e3a1;"> = </span>{entry.value()}<span style="color: #a6e3a1;">"</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf28d241" class="outline-3">
+<h3 id="orgf28d241"><span class="section-number-3">2.3.</span> <span class="todo TODO">TODO</span> parse gabc body</h3>
+<div class="outline-text-3" id="text-2-3">
+<ul class="org-ul">
+<li>Since the only purpose of this program is to convert gabc to ly for notation purposes, I don&rsquo;t need to preserve data for analytics
+<ul class="org-ul">
+<li>this means I can extract melody and text separately, since that is how LilyPond will receive them</li>
+</ul></li>
+</ul>
+</div>
+<div id="outline-container-org314dcd0" class="outline-4">
+<h4 id="org314dcd0"><span class="section-number-4">2.3.1.</span> <span class="done DONE">DONE</span> parse gabc lyrics to ly lyrics</h4>
+<div class="outline-text-4" id="text-2-3-1">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">ly_lyrics</span> <span style="color: #89dceb;">=</span> <span style="color: #a6e3a1;">""</span>
+<span style="color: #cdd6f4;">lyrics_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">False</span>
+ <span style="color: #cba6f7;">for</span> i, c <span style="color: #cba6f7;">in</span> <span style="color: #f38ba8;">enumerate</span>(gabc_body):
+    <span style="color: #cba6f7;">match</span> c:
+        <span style="color: #cba6f7;">case</span> <span style="color: #a6e3a1;">")"</span>:
+            <span style="color: #cdd6f4;">toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">True</span>
+        <span style="color: #cba6f7;">case</span> <span style="color: #a6e3a1;">"("</span>:
+            <span style="color: #cdd6f4;">toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">False</span>
+        <span style="color: #cba6f7;">case</span> other:
+            <span style="color: #cba6f7;">if</span> toggle <span style="color: #cba6f7;">is</span> <span style="color: #fab387;">True</span>:
+                <span style="color: #cdd6f4;">gabc_lyrics</span> <span style="color: #89dceb;">+=</span> c
+                <span style="color: #cba6f7;">if</span> gabc_body[i <span style="color: #89dceb;">+</span> <span style="color: #fab387;">1</span>] <span style="color: #89dceb;">==</span> <span style="color: #a6e3a1;">"("</span>:
+                    <span style="color: #cdd6f4;">ly_lyrics</span> <span style="color: #89dceb;">+=</span> <span style="color: #a6e3a1;">" -- "</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orge9ecca0" class="outline-4">
+<h4 id="orge9ecca0"><span class="section-number-4">2.3.2.</span> <span class="todo TODO">TODO</span> parse gabc melody to ly melody</h4>
+<div class="outline-text-4" id="text-2-3-2">
+</div>
+<ol class="org-ol">
+<li><a id="org42a790d"></a><span class="todo TODO">TODO</span> define datasets<br />
+<ol class="org-ol">
+<li><a id="org8e25b14"></a><span class="done DONE">DONE</span> define LyNote<br />
+<div class="outline-text-6" id="text-2-3-2-1-1">
+<ul class="org-ul">
+<li>only have properties that matter for ly notation</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cba6f7;">class</span> <span style="color: #f9e2af;">LyNote</span>:
+    <span style="color: #cba6f7;">def</span> <span style="color: #89b4fa;">__init__</span>(<span style="color: #cba6f7;">self</span>, pitch_class, accidental<span style="color: #89dceb;">=</span><span style="color: #a6e3a1;">"natural"</span>, octave, duration, special_neume, liquescence<span style="color: #89dceb;">=</span><span style="color: #fab387;">None</span>):
+        <span style="color: #cba6f7;">self</span>.<span style="color: #cdd6f4;">pitch_class</span> <span style="color: #89dceb;">=</span> pitch_class
+        <span style="color: #cba6f7;">self</span>.<span style="color: #cdd6f4;">accidental</span> <span style="color: #89dceb;">=</span> accidental
+        <span style="color: #cba6f7;">self</span>.<span style="color: #cdd6f4;">octave</span> <span style="color: #89dceb;">=</span> octave
+        <span style="color: #cba6f7;">self</span>.<span style="color: #cdd6f4;">duration</span> <span style="color: #89dceb;">=</span> duration
+        <span style="color: #cba6f7;">self</span>.<span style="color: #cdd6f4;">special_neume</span> <span style="color: #89dceb;">=</span> special_neume
+        <span style="color: #cba6f7;">self</span>.<span style="color: #cdd6f4;">liquescence</span> <span style="color: #89dceb;">=</span> liquescence
+
+    <span style="color: #cba6f7;">def</span> <span style="color: #89b4fa;">__str__</span>(<span style="color: #cba6f7;">self</span>):
+        f<span style="color: #a6e3a1;">"</span>{<span style="color: #cba6f7;">self</span>.pitch_class}{<span style="color: #cba6f7;">self</span>.accidental}{<span style="color: #cba6f7;">self</span>.octave}{<span style="color: #cba6f7;">self</span>.duration}{<span style="color: #cba6f7;">self</span>.special_neume}{<span style="color: #cba6f7;">self</span>.liquescence}<span style="color: #a6e3a1;">"</span>
+</pre>
+</div>
+</div>
+</li>
+<li><a id="orgcb5bbfe"></a><span class="todo TODO">TODO</span> define datasets for translating melody based on LyNote&rsquo;s properties<br />
+<ol class="org-ol">
+<li><a id="org6fc8d33"></a><span class="done DONE">DONE</span> pitch<sub>class</sub><br />
+<div class="outline-text-7" id="text-2-3-2-1-2-1">
+<ul class="org-ul">
+<li>to calulate pitch<sub>class</sub>, we will need to convert to integers as an intermediary
+<ul class="org-ul">
+<li>using those ints, we can then use clef to calculate absolute pitch<sub>class</sub></li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">gabc_positions_with_position_ints</span> <span style="color: #89dceb;">=</span> {
+    <span style="color: #a6e3a1;">"a"</span>: <span style="color: #fab387;">0</span>,
+    <span style="color: #a6e3a1;">"b"</span>: <span style="color: #fab387;">1</span>,
+    <span style="color: #a6e3a1;">"c"</span>: <span style="color: #fab387;">2</span>,
+    <span style="color: #a6e3a1;">"d"</span>: <span style="color: #fab387;">3</span>,
+    <span style="color: #a6e3a1;">"e"</span>: <span style="color: #fab387;">4</span>,
+    <span style="color: #a6e3a1;">"f"</span>: <span style="color: #fab387;">5</span>,
+    <span style="color: #a6e3a1;">"g"</span>: <span style="color: #fab387;">6</span>,
+    <span style="color: #a6e3a1;">"h"</span>: <span style="color: #fab387;">7</span>,
+    <span style="color: #a6e3a1;">"i"</span>: <span style="color: #fab387;">8</span>,
+    <span style="color: #a6e3a1;">"j"</span>: <span style="color: #fab387;">9</span>,
+    <span style="color: #a6e3a1;">"k"</span>: <span style="color: #fab387;">10</span>,
+    <span style="color: #a6e3a1;">"l"</span>: <span style="color: #fab387;">11</span>,
+    <span style="color: #a6e3a1;">"m"</span>: <span style="color: #fab387;">12</span>
+}
+<span style="color: #cdd6f4;">gabc_positions</span> <span style="color: #89dceb;">=</span> gabc_positions_with_ints.keys()
+<span style="color: #cdd6f4;">clefs_with_position_int_of_do</span> <span style="color: #89dceb;">=</span> {
+    <span style="color: #a6e3a1;">"c1"</span>: <span style="color: #fab387;">3</span>,
+    <span style="color: #a6e3a1;">"c2"</span>: <span style="color: #fab387;">5</span>,
+    <span style="color: #a6e3a1;">"c3"</span>: <span style="color: #fab387;">7</span>,
+    <span style="color: #a6e3a1;">"c4"</span>: <span style="color: #fab387;">9</span>,
+    <span style="color: #a6e3a1;">"f1"</span>: <span style="color: #fab387;">0</span>,
+    <span style="color: #a6e3a1;">"f2"</span>: <span style="color: #fab387;">2</span>,
+    <span style="color: #a6e3a1;">"f3"</span>: <span style="color: #fab387;">4</span>,
+    <span style="color: #a6e3a1;">"f4"</span>: <span style="color: #fab387;">6</span>
+}
+<span style="color: #cdd6f4;">clefs</span> <span style="color: #89dceb;">=</span> clefs_with_position_int_of_do.keys()
+<span style="color: #cdd6f4;">distance_from_do_with_ly_pitch_classes</span> <span style="color: #89dceb;">=</span> {
+    <span style="color: #89dceb;">-</span><span style="color: #fab387;">9</span>: <span style="color: #a6e3a1;">"a"</span>,
+    <span style="color: #89dceb;">-</span><span style="color: #fab387;">8</span>: <span style="color: #a6e3a1;">"b"</span>,
+    <span style="color: #89dceb;">-</span><span style="color: #fab387;">7</span>: <span style="color: #a6e3a1;">"c"</span>,
+    <span style="color: #89dceb;">-</span><span style="color: #fab387;">6</span>: <span style="color: #a6e3a1;">"d"</span>,
+    <span style="color: #89dceb;">-</span><span style="color: #fab387;">5</span>: <span style="color: #a6e3a1;">"e"</span>,
+    <span style="color: #89dceb;">-</span><span style="color: #fab387;">4</span>: <span style="color: #a6e3a1;">"f"</span>,
+    <span style="color: #89dceb;">-</span><span style="color: #fab387;">3</span>: <span style="color: #a6e3a1;">"g"</span>,
+    <span style="color: #89dceb;">-</span><span style="color: #fab387;">2</span>: <span style="color: #a6e3a1;">"a"</span>,
+    <span style="color: #89dceb;">-</span><span style="color: #fab387;">1</span>: <span style="color: #a6e3a1;">"b"</span>,
+     <span style="color: #fab387;">0</span>: <span style="color: #a6e3a1;">"c"</span>,
+     <span style="color: #fab387;">1</span>: <span style="color: #a6e3a1;">"d"</span>,
+     <span style="color: #fab387;">2</span>: <span style="color: #a6e3a1;">"e"</span>,
+     <span style="color: #fab387;">3</span>: <span style="color: #a6e3a1;">"f"</span>,
+     <span style="color: #fab387;">4</span>: <span style="color: #a6e3a1;">"g"</span>,
+     <span style="color: #fab387;">5</span>: <span style="color: #a6e3a1;">"a"</span>,
+     <span style="color: #fab387;">6</span>: <span style="color: #a6e3a1;">"b"</span>
+}
+</pre>
+</div>
+</div>
+</li>
+<li><a id="orgce2bc3b"></a><span class="done DONE">DONE</span> accidentals<br />
+<div class="outline-text-7" id="text-2-3-2-1-2-2">
+<ul class="org-ul">
+<li><a href="http://gregorio-project.github.io/gabc/details.html#alterations">http://gregorio-project.github.io/gabc/details.html#alterations</a></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">gabc_accidentals_with_ly_accidentals</span> <span style="color: #89dceb;">=</span> {
+    <span style="color: #a6e3a1;">"y"</span>:<span style="color: #a6e3a1;">""</span>   <span style="color: #6c7086;"># </span><span style="color: #6c7086;">natural</span>
+    <span style="color: #a6e3a1;">"x"</span>:<span style="color: #a6e3a1;">"es"</span> <span style="color: #6c7086;"># </span><span style="color: #6c7086;">flat</span>
+    <span style="color: #a6e3a1;">"#"</span>:<span style="color: #a6e3a1;">"is"</span> <span style="color: #6c7086;"># </span><span style="color: #6c7086;">sharp</span>
+}
+<span style="color: #cdd6f4;">accidentals</span> <span style="color: #89dceb;">=</span> accidental_names_with_ly.keys()
+</pre>
+</div>
+</div>
+</li>
+<li><a id="org5626e6d"></a><span class="todo TODO">TODO</span> octave<br />
+<div class="outline-text-7" id="text-2-3-2-1-2-3">
+<ul class="org-ul">
+<li><a href="https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry">https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry</a></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python">
+</pre>
+</div>
+</div>
+</li>
+<li><a id="orgfadd1f0"></a><span class="todo TODO">TODO</span> duration<br />
+<div class="outline-text-7" id="text-2-3-2-1-2-4">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">proportionalism_rhythms</span> <span style="color: #89dceb;">=</span> {
+    <span style="color: #a6e3a1;">"r"</span> : <span style="color: #a6e3a1;">"16"</span>,
+    <span style="color: #a6e3a1;">""</span>  : <span style="color: #a6e3a1;">"8"</span>,
+    <span style="color: #a6e3a1;">"_"</span> : <span style="color: #a6e3a1;">"4"</span>,
+    <span style="color: #a6e3a1;">"_."</span>: <span style="color: #a6e3a1;">"4."</span>,
+    <span style="color: #a6e3a1;">"."</span> : <span style="color: #a6e3a1;">"2"</span>
+}
+
+</pre>
+</div>
+</div>
+</li>
+<li><a id="org945f4a2"></a><span class="todo TODO">TODO</span> special<sub>neumes</sub><br />
+<div class="outline-text-7" id="text-2-3-2-1-2-5">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">special_neumes</span> <span style="color: #89dceb;">=</span> (
+    <span style="color: #a6e3a1;">"quilisma"</span>,
+    <span style="color: #a6e3a1;">"oriscus"</span>,
+    <span style="color: #a6e3a1;">"initio debilis"</span>
+)
+
+</pre>
+</div>
+</div>
+</li>
+<li><a id="orgd57e8c3"></a><span class="todo TODO">TODO</span> liquescence<br />
+<div class="outline-text-7" id="text-2-3-2-1-2-6">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">liquescence</span> <span style="color: #89dceb;">=</span> (
+    <span style="color: #a6e3a1;">"diminutive"</span>,
+    <span style="color: #a6e3a1;">"augmentative ascending"</span>,
+    <span style="color: #a6e3a1;">"augmentative descending"</span>
+)
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><a id="orgd679e2a"></a><span class="todo TODO">TODO</span> extract gabc melody<br />
+<div class="outline-text-5" id="text-2-3-2-2">
+<ul class="org-ul">
+<li>my goal here really needs to be a minimum viable product
+<ul class="org-ul">
+<li>I can ignore special neumes for now</li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cba6f7;">def</span> <span style="color: #89b4fa;">gabc_position_to_ly_pitch</span>(clef, gabc_position): <span style="color: #6c7086;"># </span><span style="color: #6c7086;">keep this method</span>
+    <span style="color: #cdd6f4;">distance_from_do</span> <span style="color: #89dceb;">=</span> gabc_positions_with_ints[gabc_position] <span style="color: #89dceb;">-</span> clefs_with_position_of_do[clef]
+    <span style="color: #cdd6f4;">ly_pitch</span> <span style="color: #89dceb;">=</span> distance_from_do_with_ly_pitches[distance_from_do]
+    <span style="color: #cba6f7;">return</span> ly_pitch
+
+<span style="color: #cdd6f4;">clef</span> <span style="color: #89dceb;">=</span> <span style="color: #a6e3a1;">"c4"</span> <span style="color: #6c7086;"># </span><span style="color: #6c7086;">default clef if not defined in Body</span>
+<span style="color: #cdd6f4;">ly_melody</span> <span style="color: #89dceb;">=</span> <span style="color: #a6e3a1;">""</span>
+<span style="color: #cdd6f4;">melody_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">False</span>
+<span style="color: #cdd6f4;">active_accidental</span> <span style="color: #89dceb;">=</span> <span style="color: #a6e3a1;">"natural"</span>
+
+<span style="color: #cba6f7;">for</span> i, c <span style="color: #cba6f7;">in</span> <span style="color: #f38ba8;">enumerate</span>(gabc_body):
+    <span style="color: #cba6f7;">if</span> c <span style="color: #cba6f7;">is</span> <span style="color: #a6e3a1;">"("</span>:
+        <span style="color: #6c7086;"># </span><span style="color: #6c7086;">check for clef change</span>
+        <span style="color: #cba6f7;">if</span> gabc_body[i<span style="color: #89dceb;">+</span><span style="color: #fab387;">1</span>, i<span style="color: #89dceb;">+</span><span style="color: #fab387;">2</span>] <span style="color: #cba6f7;">in</span> clefs <span style="color: #89dceb;">&amp;&amp;</span> gabc_body[i<span style="color: #89dceb;">+</span><span style="color: #fab387;">3</span>] <span style="color: #cba6f7;">is</span> <span style="color: #a6e3a1;">")"</span>:
+            <span style="color: #cdd6f4;">clef</span> <span style="color: #89dceb;">=</span> gabc_body[i<span style="color: #89dceb;">+</span><span style="color: #fab387;">1</span>, i<span style="color: #89dceb;">+</span><span style="color: #fab387;">2</span>]
+        <span style="color: #cba6f7;">else</span>:
+            <span style="color: #cdd6f4;">melody_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">True</span>
+    <span style="color: #cba6f7;">elif</span> melody_toggle <span style="color: #cba6f7;">is</span> <span style="color: #fab387;">True</span>:
+        <span style="color: #cba6f7;">if</span> c <span style="color: #cba6f7;">in</span> accidentals:
+            <span style="color: #cdd6f4;">active_accidental</span> <span style="color: #89dceb;">=</span> accidentals[c]
+
+        <span style="color: #cba6f7;">elif</span> c <span style="color: #cba6f7;">in</span> gabc_positions:
+            <span style="color: #cdd6f4;">ly_melody</span> <span style="color: #89dceb;">+=</span> gabc_position_to_ly_pitch(c)
+
+        <span style="color: #6c7086;">#</span><span style="color: #6c7086;">elif c in special_neumes:</span>
+        <span style="color: #6c7086;">#    </span><span style="color: #6c7086;">ly_melody += gabc_special_neume_to_ly(c)</span>
+
+    <span style="color: #cba6f7;">elif</span> c <span style="color: #cba6f7;">is</span> <span style="color: #a6e3a1;">")"</span>:
+        <span style="color: #cdd6f4;">active_accidental</span> <span style="color: #89dceb;">=</span> <span style="color: #a6e3a1;">"natural"</span>
+
+<span style="color: #cba6f7;">for</span> c <span style="color: #cba6f7;">in</span> gabc_melody:
+    <span style="color: #cba6f7;">if</span> c <span style="color: #cba6f7;">in</span> gabc_positions:
+        <span style="color: #cdd6f4;">ly_pitch</span> <span style="color: #89dceb;">=</span> gabc_position_to_ly_pitch(clef, c)
+        <span style="color: #cdd6f4;">ly_melody</span> <span style="color: #89dceb;">+=</span> (ly_pitch <span style="color: #89dceb;">+</span> <span style="color: #a6e3a1;">" "</span>)
+
+<span style="color: #cdd6f4;">gabc_melody</span> <span style="color: #89dceb;">=</span> <span style="color: #a6e3a1;">""</span>
+<span style="color: #cdd6f4;">clef_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">False</span> <span style="color: #6c7086;"># </span><span style="color: #6c7086;">to account for the clef in round brackets</span>
+<span style="color: #cdd6f4;">parenthesis_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">False</span>
+<span style="color: #cdd6f4;">main_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">False</span>
+<span style="color: #cba6f7;">for</span> c <span style="color: #cba6f7;">in</span> gabc_body:
+    <span style="color: #cba6f7;">match</span> c:
+        <span style="color: #cba6f7;">case</span> <span style="color: #a6e3a1;">"("</span>:
+            <span style="color: #cba6f7;">if</span> first_toggle <span style="color: #cba6f7;">is</span> <span style="color: #fab387;">True</span>:
+                <span style="color: #cdd6f4;">main_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">True</span>
+                <span style="color: #cdd6f4;">parenthesis_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">True</span>
+            <span style="color: #cba6f7;">elif</span> first_toggle <span style="color: #cba6f7;">is</span> <span style="color: #fab387;">False</span>:
+                <span style="color: #cdd6f4;">first_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">True</span>
+        <span style="color: #cba6f7;">case</span> <span style="color: #a6e3a1;">")"</span>:
+            <span style="color: #cdd6f4;">main_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">False</span>
+            <span style="color: #cdd6f4;">gabc_melody</span> <span style="color: #89dceb;">+=</span> <span style="color: #a6e3a1;">")"</span>
+        <span style="color: #cba6f7;">case</span> other:
+            <span style="color: #cba6f7;">if</span> main_toggle <span style="color: #cba6f7;">is</span> <span style="color: #fab387;">True</span>:
+                <span style="color: #cdd6f4;">gabc_melody</span> <span style="color: #89dceb;">+=</span> c
+                <span style="color: #cba6f7;">if</span> <span style="color: #cdd6f4;">parenthesis_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">True</span>:
+                    <span style="color: #cdd6f4;">gabc_melody</span> <span style="color: #89dceb;">+=</span> <span style="color: #a6e3a1;">"("</span>
+                    <span style="color: #cdd6f4;">parenthesis_toggle</span> <span style="color: #89dceb;">=</span> <span style="color: #fab387;">False</span>
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-org5fe1b4b" class="outline-2">
+<h2 id="org5fe1b4b"><span class="section-number-2">3.</span> <span class="todo WAIT">WAIT</span> output</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-org08c3268" class="outline-3">
+<h3 id="org08c3268"><span class="section-number-3">3.1.</span> Lilypond template</h3>
+<div class="outline-text-3" id="text-3-1">
+<div class="org-src-container">
+<pre class="src src-lilypond">\version "2.24.3"
+\include "gregorian.ly"
+%TODO incorporate oriscus and virga onto modern staff
+
+\header {
+% ly_metadata
+}
+
+global = {
+  \cadenzaOn
+  \omit Staff.TimeSignature
+  \key c \major
+}
+
+melody = \relative c'' {
+  \global
+  % ly_melody
+}
+
+text = \lyricmode {
+  % ly_lyrics
+}
+
+\score {
+  &lt;&lt;
+  \new Staff {
+    \context Voice = "vocal" { \melody }
+  }
+  \new Lyrics \lyricsto "vocal" \text
+  &gt;&gt;
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org3cef687" class="outline-3">
+<h3 id="org3cef687"><span class="section-number-3">3.2.</span> Import template</h3>
+<div class="outline-text-3" id="text-3-2">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cba6f7;">with</span> <span style="color: #f38ba8;">open</span>(<span style="color: #a6e3a1;">"template.ly"</span>, <span style="color: #a6e3a1;">"r"</span>) <span style="color: #cba6f7;">as</span> <span style="color: #f38ba8;">file</span>:
+    <span style="color: #cdd6f4;">ly_template</span> <span style="color: #89dceb;">=</span> <span style="color: #f38ba8;">file</span>.read()
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org8a62379" class="outline-3">
+<h3 id="org8a62379"><span class="section-number-3">3.3.</span> Interpolate template with data</h3>
+<div class="outline-text-3" id="text-3-3">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #cdd6f4;">ly_template_interpolated</span> <span style="color: #89dceb;">=</span> ly_template
+<span style="color: #cdd6f4;">ly_template_interpolated</span> <span style="color: #89dceb;">=</span> ly_template_interpolated.replace(<span style="color: #a6e3a1;">"% ly_metadeta"</span>, ly_metadata)
+<span style="color: #cdd6f4;">ly_template_interpolated</span> <span style="color: #89dceb;">=</span> ly_template_interpolated.replace(<span style="color: #a6e3a1;">"% ly_melody"</span>, ly_melody)
+<span style="color: #cdd6f4;">ly_template_interpolated</span> <span style="color: #89dceb;">=</span> ly_template_interpolated.replace(<span style="color: #a6e3a1;">"% ly_lyrics"</span>, ly_lyrics)
+
+<span style="color: #cba6f7;">with</span> <span style="color: #f38ba8;">open</span>(<span style="color: #a6e3a1;">"chant.ly"</span>, <span style="color: #a6e3a1;">"w"</span>) <span style="color: #cba6f7;">as</span> <span style="color: #f38ba8;">file</span>:
+    <span style="color: #f38ba8;">file</span>.write(ly_template_with_melody_and_lyrics)
+
+<span style="color: #6c7086;"># </span><span style="color: #6c7086;">tangled from Org-Mode on &lt;2024-06-26&gt;</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Alex Harter</p>
+<p class="date">Created: 2024-06-26 Wed 19:42</p>
+</div>
+</body>
+</html>

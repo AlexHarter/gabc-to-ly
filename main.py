@@ -1,24 +1,3 @@
-#+TITLE: gabc-to-ly.py main org file
-#+AUTHOR: Alex Harter
-#+PROPERTY: header-args python :tangle yes :tangle main.py
-- [ ] find a gabc file that contains everything I need to parse along with desired output
-- [ ] Incorporate quilisma and oricus noteheads on modern staff
-[[file:reference/table_of_neumes.pdf][Table of Neumes]]
-* WAIT init
-** DONE import libraries
-- may need RegEx
-#+BEGIN_SRC python :tangle no
-import argparse
-#+END_SRC
-** WAIT take in user args
-- /path/to/file.gabc
-- in which rhythmic system to interpret
-#+BEGIN_SRC python :tangle no
-#TODO take in user args
-#+END_SRC
-* DONE parse gabc to lilypond
-** DONE import and split gabc
-#+BEGIN_SRC python
 example_gabc_file_path = "example.gabc"
 with open(example_gabc_file_path, 'r') as file:
     gabc = file.read()
@@ -30,27 +9,18 @@ gabc_body = gabc.split("%%")[1]
 
 print(f"GABC Header: {gabc_header}")
 print(f"GABC Body: {gabc_body}")
-#+END_SRC
-** DONE parse gabc header to ly metadata
-*** DONE parse gabc header into dictionary
-#+BEGIN_SRC python
+
 gabc_header_entries = gabc_header.strip().split(";\n")
 gabc_header_dictionary = {}
 for entry in gabc_header_entries:
     key, value = entry.split(":", 1) # in case there are semicolons in the value
     gabc_header_dictionary.update({key.strip(): value.strip()})
-#+END_SRC
-*** DONE reference [[https://lilypond.org/doc/v2.23/Documentation/notation/creating-output-file-metadata][format]] to properly interpolate dictionary entries
-- interpolate from the ly template
-#+BEGIN_SRC python
+
 ly_metadata = []
 for key, value in gabc_header_dictionary.items():
     ly_metadata.append(f"{key} = {value}")
 print(f"LilyPond Metadata: {ly_metadata}")
-#+END_SRC
-** DONE parse gabc body to ly lyrics and ly melody
-*** DONE parse gabc lyrics to ly lyrics
-#+BEGIN_SRC python
+
 ly_lyrics = ""
 lyrics_toggle = False
 for i, c in enumerate(gabc_body):
@@ -71,12 +41,7 @@ for i, c in enumerate(gabc_body):
                         elif next_char.isalpha():
                             ly_lyrics += " -- "
 print(f"LilyPond Lyrics: {ly_lyrics}")
-#+END_SRC
-*** DONE parse gabc melody to ly melody
-**** DONE define datasets
-***** DONE define LyNote
-- only have properties that matter for ly notation
-#+BEGIN_SRC python
+
 """
 class LyNote:
     def __init__(self, pitch_class, accidental="", octave, duration, special_neume="", liquescence=""):
@@ -90,12 +55,7 @@ class LyNote:
     def __str__(self):
         f"{self.pitch_class}{self.accidental}{self.octave}{self.duration}{self.special_neume}{self.liquescence}"
 """
-#+END_SRC
-***** DONE define datasets for translating melody based on LyNote's properties
-****** DONE pitch_class
-- to calulate pitch_class, we will need to convert to integers as an intermediary
-  - using those ints, we can then use clef to calculate absolute pitch_class
-#+BEGIN_SRC python
+
 gabc_positions_with_position_ints = {
     "a": 0,
     "b": 1,
@@ -141,31 +101,21 @@ distance_from_do_with_ly_pitch_classes = {
      5: "a",
      6: "b"
 }
-#+END_SRC
-****** DONE accidentals
-- [[http://gregorio-project.github.io/gabc/details.html#alterations]]
-#+BEGIN_SRC python
+
 gabc_accidentals_with_ly_accidentals = {
     "y":"",   # natural
     "x":"es", # flat
     "#":"is"  # sharp
 }
 gabc_accidentals = gabc_accidentals_with_ly_accidentals.keys()
-#+END_SRC
-****** DONE octave
-- [[https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry]]
-- only the octaves that could be used in a treble clef gregorian score
-#+BEGIN_SRC python
+
 absolute_octaves_with_ly_octaves = {
     3:",",
     4:"",
     5:"'"
 }
 absolute_octaves = absolute_octaves_with_ly_octaves.keys()
-#+END_SRC
-****** DONE duration
-- [[https://lilypond.org/doc/v2.23/Documentation/notation/writing-rhythms]]
-#+BEGIN_SRC python
+
 proportionalism_rhythms = (
     "16", # sixteenth
     "8",  # eighth
@@ -173,28 +123,19 @@ proportionalism_rhythms = (
     "4.", # dotted quarter
     "2"   # half
 )
-#+END_SRC
-****** DONE special_neumes
-- [[http://gregorio-project.github.io/gabc/index.html#onenote]]
-#+BEGIN_SRC python
+
 special_neumes = (
     "w", # quilisma
     "o", # oriscus
     "-"  # initio debilis
 )
-#+END_SRC
-****** DONE liquescence
-#+BEGIN_SRC python
+
 liquescence = (
     "~", # diminutive # in lilypond:  \tweak #'font-size #-3
     "<", # augmentative ascending
     ">"  # augmentative descending
 )
-#+END_SRC
-**** DONE extract gabc melody
-- my goal here really needs to be a minimum viable product
-  - I can ignore special neumes for now
-#+BEGIN_SRC python
+
 def gabc_position_to_ly_pitch_class(clef, gabc_position): # keep this method
     distance_from_do = gabc_positions_with_position_ints[gabc_position] - clefs_with_position_int_of_do[clef]
     ly_pitch_class = distance_from_do_with_ly_pitch_classes[distance_from_do]
@@ -255,49 +196,10 @@ for i, c in enumerate(gabc_body):
             #ly_note = LyNote(ly_pitch_class, ly_accidental, ly_octave, ly_duration, ly_special_neume, ly_liquescence)
             ly_melody += ly_note
 print(f"LilyPond Melody: {ly_melody}")
-#+END_SRC
-* DONE output
-** DONE Lilypond template
-#+BEGIN_SRC lilypond :tangle template.ly
-\version "2.24.3"
-\include "gregorian.ly"
 
-\header {
-  % ly_metadata
-}
-
-global = {
-  \cadenzaOn
-  \omit Staff.TimeSignature
-  \key c \major
-}
-
-melody = \relative c'' {
-  \global
-  % ly_melody
-}
-
-text = \lyricmode {
-  % ly_lyrics
-}
-
-\score {
-  <<
-  \new Staff {
-    \context Voice = "vocal" { \melody }
-  }
-  \new Lyrics \lyricsto "vocal" \text
-  >>
-}
-% tangle from Org-Mode on <2024-06-28>
-#+END_SRC
-** DONE Import template
-#+BEGIN_SRC python
 with open("template.ly", "r") as file:
     ly_template = file.read()
-#+END_SRC
-** DONE Interpolate template with data
-#+BEGIN_SRC python
+
 ly_template_interpolated = ly_template
 ly_template_interpolated = ly_template_interpolated.replace("% ly_metadeta", ''.join(ly_metadata))
 ly_template_interpolated = ly_template_interpolated.replace("% ly_melody", ly_melody)
@@ -307,6 +209,3 @@ with open("chant.ly", "w") as file:
     file.write(ly_template_interpolated)
 
 # tangled from Org-Mode on <2024-06-28>
-#+END_SRC
-
-#+RESULTS:
