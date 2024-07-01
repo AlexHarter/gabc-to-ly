@@ -1,0 +1,3 @@
+ * GABC to LilyPond Converter in Python
+ * Planned Features
+   - Add options to convert according to Proportional, Solesmes, or Vatican rhythmic interpretations.

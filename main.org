@@ -32,8 +32,9 @@ print(f"GABC Header: {gabc_header}")
 print(f"GABC Body: {gabc_body}")
 #+END_SRC
 ** DONE parse gabc header to ly metadata
+#+PROPERTY: python :tangle yes :tangle header_parser.py
 *** DONE parse gabc header into dictionary
-#+BEGIN_SRC python
+#+BEGIN_SRC python :tangle header_parser.py
 gabc_header_entries = gabc_header.strip().split(";\n")
 gabc_header_dictionary = {}
 for entry in gabc_header_entries:
@@ -49,6 +50,7 @@ for key, value in gabc_header_dictionary.items():
 print(f"LilyPond Metadata: {ly_metadata}")
 #+END_SRC
 ** DONE parse gabc body to ly lyrics and ly melody
+#+PROPERTY: header-args python :tangle yes :tangle body_parser.py
 *** DONE parse gabc lyrics to ly lyrics
 #+BEGIN_SRC python
 ly_lyrics = ""
