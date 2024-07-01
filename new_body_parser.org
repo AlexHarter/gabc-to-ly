@@ -1,24 +1,19 @@
 #+PROPERTY: header-args python :tangle yes :tangle body_parser.py
-- this is a refatoring of the body parser found in main.org
-  - I split the file here so I can focus better
-  - after this is functional, reincorporate this back into main.org
-    - but, still tangle to body_parser.py since it is totally separate from header_parser
-      - I also want to compile this using Cython to get better performance
-- [ ] ensure output is what I want using Frescobaldi
-* example input
-[[file:~/Downloads/in3--deus_israel--proportional.pdf][Deus Israel]]
-#+BEGIN_SRC gabc :tangle no
-(c4) DE(gj)us(jjj_) Is(h_)ra(h_0!iWj_//kjjo_)el(ji__) *(,)
-#+END_SRC
-* desired melody output
-#+BEGIN_SRC lilypond :tangle no
-g8( c) c( c c4) a a( b16 c4 d8 c d16 c4) c( b) \divisioMinor
-#+END_SRC
-* desired lyrics output
-#+BEGIN_SRC lilypond :tangle no
-DE -- us Is -- ra -- el
-#+END_SRC
-* code
-#+BEGIN_SRC python
 
+* example input
+
+
+* desired melody output
+
+* desired lyrics output
+
+* code
+** define datasets & functions
+#+BEGIN_SRC python
+  
+#+END_SRC
+** main
+#+BEGIN_SRC python
+  for i, c in enumerate(gabc_body):
+      if 
 #+END_SRC

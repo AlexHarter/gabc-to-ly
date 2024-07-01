@@ -13,7 +13,7 @@ global = {
 
 melody = \relative c'' {
   \global
-  g8([ c]) c([ c] c4) a a( \acciaccatura b16 c4 d8[ c] \acciaccatura d16 c4) c( b) \divisioMinor
+  g8([ c]) c([ c] c4) a a( \acciaccatura{ \stemNeutral b16} c4 d8[ c] \acciaccatura{ \stemNeutral d16} c4) c( b) \divisioMinima
 }
 
 text = \lyricmode {

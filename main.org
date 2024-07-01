@@ -2,22 +2,23 @@
 #+AUTHOR: Alex Harter
 #+PROPERTY: header-args python :tangle yes :tangle main.py
 - [ ] find a gabc file that contains everything I need to parse along with desired output
-- [ ] Incorporate quilisma and oricus noteheads on modern staff
+- [ ] Incorporate quilisma and oriscus noteheads on modern staff
 [[file:reference/table_of_neumes.pdf][Table of Neumes]]
-* WAIT init
-** DONE import libraries
+* TODO main.py
+** TODO init
+*** TODO import libraries
 - may need RegEx
 #+BEGIN_SRC python :tangle no
 import argparse
 #+END_SRC
-** WAIT take in user args
+*** TODO take in user args
 - /path/to/file.gabc
 - in which rhythmic system to interpret
 #+BEGIN_SRC python :tangle no
 #TODO take in user args
 #+END_SRC
-* DONE parse gabc to lilypond
-** DONE import and split gabc
+** TODO data processing
+*** TODO import and split gabc
 #+BEGIN_SRC python
 example_gabc_file_path = "example.gabc"
 with open(example_gabc_file_path, 'r') as file:
@@ -31,9 +32,62 @@ gabc_body = gabc.split("%%")[1]
 print(f"GABC Header: {gabc_header}")
 print(f"GABC Body: {gabc_body}")
 #+END_SRC
-** DONE parse gabc header to ly metadata
+** TODO output
+*** TODO Lilypond template
+#+BEGIN_SRC lilypond :tangle template.ly
+\version "2.24.3"
+\include "gregorian.ly"
+
+\header {
+  % ly_metadata
+}
+
+global = {
+  \cadenzaOn
+  \omit Staff.TimeSignature
+  \key c \major
+}
+
+melody = \relative c'' {
+  \global
+  % ly_melody
+}
+
+text = \lyricmode {
+  % ly_lyrics
+}
+
+\score {
+  <<
+  \new Staff {
+    \context Voice = "vocal" { \melody }
+  }
+  \new Lyrics \lyricsto "vocal" \text
+  >>
+}
+% tangle from Org-Mode on <2024-06-28>
+#+END_SRC
+*** TODO Import template
+#+BEGIN_SRC python
+with open("template.ly", "r") as file:
+    ly_template = file.read()
+#+END_SRC
+*** TODO Interpolate template with data
+#+BEGIN_SRC python
+ly_template_interpolated = ly_template
+ly_template_interpolated = ly_template_interpolated.replace("% ly_metadeta", ''.join(ly_metadata))
+ly_template_interpolated = ly_template_interpolated.replace("% ly_melody", ly_melody)
+ly_template_interpolated = ly_template_interpolated.replace("% ly_lyrics", ly_lyrics)
+
+with open("chant.ly", "w") as file:
+    file.write(ly_template_interpolated)
+
+# tangled from Org-Mode on <2024-06-28>
+#+END_SRC
+* TODO data parsing main
+** TODO gabc header to ly metadata
 #+PROPERTY: python :tangle yes :tangle header_parser.py
-*** DONE parse gabc header into dictionary
+*** TODO parse gabc header into dictionary
 #+BEGIN_SRC python :tangle header_parser.py
 gabc_header_entries = gabc_header.strip().split(";\n")
 gabc_header_dictionary = {}
@@ -41,7 +95,7 @@ for entry in gabc_header_entries:
     key, value = entry.split(":", 1) # in case there are semicolons in the value
     gabc_header_dictionary.update({key.strip(): value.strip()})
 #+END_SRC
-*** DONE reference [[https://lilypond.org/doc/v2.23/Documentation/notation/creating-output-file-metadata][format]] to properly interpolate dictionary entries
+*** TODO reference [[https://lilypond.org/doc/v2.23/Documentation/notation/creating-output-file-metadata][format]] to properly interpolate dictionary entries
 - interpolate from the ly template
 #+BEGIN_SRC python
 ly_metadata = []
@@ -49,9 +103,29 @@ for key, value in gabc_header_dictionary.items():
     ly_metadata.append(f"{key} = {value}")
 print(f"LilyPond Metadata: {ly_metadata}")
 #+END_SRC
-** DONE parse gabc body to ly lyrics and ly melody
+** TODO gabc body to ly lyrics and ly melody
 #+PROPERTY: header-args python :tangle yes :tangle body_parser.py
-*** DONE parse gabc lyrics to ly lyrics
+- this is a refatoring of the body parser found in main.org
+  - I split the file here so I can focus better
+  - after this is functional, reincorporate this back into main.org
+    - but, still tangle to body_parser.py since it is totally separate from header_parser
+      - I also want to compile this using Cython to get better performance
+- [ ] ensure output is what I want using Frescobaldi
+** example gabc body input
+[[file:~/Downloads/in3--deus_israel--proportional.pdf][Deus Israel]]
+#+BEGIN_SRC gabc :tangle no
+(c4) DE(gj)us(jjj_) Is(h_)ra(h_0!iWj_//kjjo_)el(ji__) *(,)
+#+END_SRC
+** desired ly melody output
+#+BEGIN_SRC lilypond :tangle no
+g8([ c]) c([ c] c4) a a( \acciaccatura{ \stemNeutral b16} c4 d8[ c] \acciaccatura{ \stemNeutral d16} c4) c( b) \divisioMinima
+#+END_SRC
+** desired ly lyrics output
+*** TODO figure out a solution for *'s
+#+BEGIN_SRC lilypond :tangle no
+De -- us Is -- ra -- el
+#+END_SRC
+*** TODO parse gabc lyrics to ly lyrics
 #+BEGIN_SRC python
 ly_lyrics = ""
 lyrics_toggle = False
@@ -74,7 +148,7 @@ for i, c in enumerate(gabc_body):
                             ly_lyrics += " -- "
 print(f"LilyPond Lyrics: {ly_lyrics}")
 #+END_SRC
-*** DONE parse gabc melody to ly melody
+*** TODO parse gabc melody to ly melody
 **** DONE define datasets
 ***** DONE define LyNote
 - only have properties that matter for ly notation
@@ -258,57 +332,3 @@ for i, c in enumerate(gabc_body):
             ly_melody += ly_note
 print(f"LilyPond Melody: {ly_melody}")
 #+END_SRC
-* DONE output
-** DONE Lilypond template
-#+BEGIN_SRC lilypond :tangle template.ly
-\version "2.24.3"
-\include "gregorian.ly"
-
-\header {
-  % ly_metadata
-}
-
-global = {
-  \cadenzaOn
-  \omit Staff.TimeSignature
-  \key c \major
-}
-
-melody = \relative c'' {
-  \global
-  % ly_melody
-}
-
-text = \lyricmode {
-  % ly_lyrics
-}
-
-\score {
-  <<
-  \new Staff {
-    \context Voice = "vocal" { \melody }
-  }
-  \new Lyrics \lyricsto "vocal" \text
-  >>
-}
-% tangle from Org-Mode on <2024-06-28>
-#+END_SRC
-** DONE Import template
-#+BEGIN_SRC python
-with open("template.ly", "r") as file:
-    ly_template = file.read()
-#+END_SRC
-** DONE Interpolate template with data
-#+BEGIN_SRC python
-ly_template_interpolated = ly_template
-ly_template_interpolated = ly_template_interpolated.replace("% ly_metadeta", ''.join(ly_metadata))
-ly_template_interpolated = ly_template_interpolated.replace("% ly_melody", ly_melody)
-ly_template_interpolated = ly_template_interpolated.replace("% ly_lyrics", ly_lyrics)
-
-with open("chant.ly", "w") as file:
-    file.write(ly_template_interpolated)
-
-# tangled from Org-Mode on <2024-06-28>
-#+END_SRC
-
-#+RESULTS:
