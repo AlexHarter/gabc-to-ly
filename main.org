@@ -1,15 +1,15 @@
 #+TITLE: gabc-to-ly.py main org file
 #+AUTHOR: Alex Harter
-#+PROPERTY: header-args python :tangle yes :tangle main.py
 - [ ] find a gabc file that contains everything I need to parse along with desired output
 - [ ] Incorporate quilisma and oriscus noteheads on modern staff
 [[file:reference/table_of_neumes.pdf][Table of Neumes]]
 * TODO main.py
+#+PROPERTY: header-args python :tangle yes :tangle main.py
 ** TODO init
 *** TODO import libraries
-- may need RegEx
 #+BEGIN_SRC python :tangle no
-import argparse
+  import argparse
+  import regex
 #+END_SRC
 *** TODO take in user args
 - /path/to/file.gabc
@@ -121,34 +121,11 @@ print(f"LilyPond Metadata: {ly_metadata}")
 g8([ c]) c([ c] c4) a a( \acciaccatura{ \stemNeutral b16} c4 d8[ c] \acciaccatura{ \stemNeutral d16} c4) c( b) \divisioMinima
 #+END_SRC
 ** desired ly lyrics output
-*** TODO figure out a solution for *'s
+- [ ] figure out a solution for *'s
 #+BEGIN_SRC lilypond :tangle no
 De -- us Is -- ra -- el
 #+END_SRC
-*** TODO parse gabc lyrics to ly lyrics
-#+BEGIN_SRC python
-ly_lyrics = ""
-lyrics_toggle = False
-for i, c in enumerate(gabc_body):
-    if i < (len(gabc_body) - 1):
-        match c:
-            case ")":
-                lyrics_toggle = True
-            case "(":
-                lyrics_toggle = False
-            case other:
-                if lyrics_toggle is True:
-                    ly_lyrics += c
-                    closing_paren_index = gabc_body.find(")", i + 1)
-                    if closing_paren_index != -1 and closing_paren_index + 1 < len(gabc_body):
-                        next_char = gabc_body[closing_paren_index + 1]
-                        if next_char == " ":
-                            ly_lyrics += " "
-                        elif next_char.isalpha():
-                            ly_lyrics += " -- "
-print(f"LilyPond Lyrics: {ly_lyrics}")
-#+END_SRC
-*** TODO parse gabc melody to ly melody
+** TODO parse gabc melody to ly melody
 **** DONE define datasets
 ***** DONE define LyNote
 - only have properties that matter for ly notation
@@ -271,64 +248,85 @@ liquescence = (
 - my goal here really needs to be a minimum viable product
   - I can ignore special neumes for now
 #+BEGIN_SRC python
-def gabc_position_to_ly_pitch_class(clef, gabc_position): # keep this method
-    distance_from_do = gabc_positions_with_position_ints[gabc_position] - clefs_with_position_int_of_do[clef]
-    ly_pitch_class = distance_from_do_with_ly_pitch_classes[distance_from_do]
-    return ly_pitch_class
-
-clef = "c4" # default clef if not defined in Body
-ly_melody = ""
-melody_toggle = False
-active_accidental = "natural"
-
+  def gabc_position_to_ly_pitch_class(clef, gabc_position): # keep this method
+      distance_from_do = gabc_positions_with_position_ints[gabc_position] - clefs_with_position_int_of_do[clef]
+      ly_pitch_class = distance_from_do_with_ly_pitch_classes[distance_from_do]
+      return ly_pitch_class
+  """
+ly_lyrics = ""
+lyrics_toggle = False
 for i, c in enumerate(gabc_body):
-    ly_duration = ""
-    if c == "(":
-        # check for clef change
-        if gabc_body[i+1:i+3] in clefs and gabc_body[i+3] == ")":
-            clef = gabc_body[i+1:i+3]
-        else:
-            melody_toggle = True
-    elif melody_toggle is True:
-        if c in gabc_accidentals:
-            active_accidental = accidentals[c]
+    if i < (len(gabc_body) - 1):
+        match c:
+            case ")":
+                lyrics_toggle = True
+            case "(":
+                lyrics_toggle = False
+            case other:
+                if lyrics_toggle is True:
+                    ly_lyrics += c
+                    closing_paren_index = gabc_body.find(")", i + 1)
+                    if closing_paren_index != -1 and closing_paren_index + 1 < len(gabc_body):
+                        next_char = gabc_body[closing_paren_index + 1]
+                        if next_char == " ":
+                            ly_lyrics += " "
+                        elif next_char.isalpha():
+                            ly_lyrics += " -- "
+print(f"LilyPond Lyrics: {ly_lyrics}")
+  """
+  clef = "c4" # default clef if not defined in Body
+  ly_melody = ""
+  melody_toggle = False
+  active_accidental = "natural"
 
-        elif c in gabc_positions:
-            # pitch class
-            ly_pitch_class = gabc_position_to_ly_pitch_class(clef, c)
-            # accidental
-            ly_accidental = ""
-            # WAIT octave
-            ly_octave = ""
-            # duration
-            if gabc_body[i+1] == "_":
-                if ly_duration == "4":
-                    ly_duration = ""
-                else:
-                    ly_duration = "4"
-            elif gabc_body[i+2] == "_" and gabc_body[i+3] == "_":
-                if ly_duration == "4":
-                    ly_duration = ""
-                else:
-                    ly_duration = "4"
-            elif gabc_body[i+1] == ".":
-                if ly_duration == "2":
-                    ly_duration = ""
-                else:
-                    ly_duration = "2"
-            else:
-                if ly_duration == "8":
-                    ly_duration = ""
-                else:
-                    ly_duration = "8"
-            # WAIT special neumes
-            ly_special_neume = ""
-            # WAIT liquescence
-            ly_liquescence = ""
+  for i, c in enumerate(gabc_body):
+      ly_duration = ""
+      if c == "(":
+	  # check for clef change
+	  if gabc_body[i+1:i+3] in clefs and gabc_body[i+3] == ")":
+	      clef = gabc_body[i+1:i+3]
+	  else:
+	      melody_toggle = True
+      elif melody_toggle is True:
+	  if c in gabc_accidentals:
+	      active_accidental = accidentals[c]
 
-            ly_note = f"{ly_pitch_class}{ly_accidental}{ly_octave}{ly_duration}{ly_special_neume}{ly_liquescence}"
+	  elif c in gabc_positions:
+	      # pitch class
+	      ly_pitch_class = gabc_position_to_ly_pitch_class(clef, c)
+	      # accidental
+	      ly_accidental = ""
+	      # WAIT octave
+	      ly_octave = ""
+	      # duration
+	      if gabc_body[i+1] == "_":
+		  if ly_duration == "4":
+		      ly_duration = ""
+		  else:
+		      ly_duration = "4"
+	      elif gabc_body[i+2] == "_" and gabc_body[i+3] == "_":
+		  if ly_duration == "4":
+		      ly_duration = ""
+		  else:
+		      ly_duration = "4"
+	      elif gabc_body[i+1] == ".":
+		  if ly_duration == "2":
+		      ly_duration = ""
+		  else:
+		      ly_duration = "2"
+	      else:
+		  if ly_duration == "8":
+		      ly_duration = ""
+		  else:
+		      ly_duration = "8"
+	      # WAIT special neumes
+	      ly_special_neume = ""
+	      # WAIT liquescence
+	      ly_liquescence = ""
 
-            #ly_note = LyNote(ly_pitch_class, ly_accidental, ly_octave, ly_duration, ly_special_neume, ly_liquescence)
-            ly_melody += ly_note
-print(f"LilyPond Melody: {ly_melody}")
+	      ly_note = f"{ly_pitch_class}{ly_accidental}{ly_octave}{ly_duration}{ly_special_neume}{ly_liquescence}"
+
+	      #ly_note = LyNote(ly_pitch_class, ly_accidental, ly_octave, ly_duration, ly_special_neume, ly_liquescence)
+	      ly_melody += ly_note
+  print(f"LilyPond Melody: {ly_melody}")
 #+END_SRC
