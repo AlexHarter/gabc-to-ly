@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2024-07-03 Wed 09:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>gabc-to-ly.py main org file</title>
+<meta name="author" content="Alex Harter" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">gabc-to-ly.py main org file</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org73b141b">1. <span class="todo TODO">TODO</span> init</a>
+<ul>
+<li><a href="#org05f2990">1.1. <span class="todo TODO">TODO</span> import libraries</a></li>
+<li><a href="#org1cc38c0">1.2. <span class="todo TODO">TODO</span> take in user args</a></li>
+</ul>
+</li>
+<li><a href="#org4fb504f">2. <span class="todo TODO">TODO</span> parse data</a>
+<ul>
+<li><a href="#org781828a">2.1. <span class="todo TODO">TODO</span> import and split gabc</a></li>
+<li><a href="#org6aaa8a4">2.2. <span class="todo TODO">TODO</span> header parser</a>
+<ul>
+<li><a href="#org2a59ef9">2.2.1. example input/output</a></li>
+<li><a href="#org890db5e">2.2.2. <span class="todo TODO">TODO</span> parser</a></li>
+</ul>
+</li>
+<li><a href="#org1a8ff02">2.3. <span class="todo TODO">TODO</span> body parser</a>
+<ul>
+<li><a href="#org8b3a8e3">2.3.1. example body input/output</a></li>
+<li><a href="#orgbe0932c">2.3.2. define datasets &amp; functions</a></li>
+<li><a href="#orgbdd2366">2.3.3. <span class="todo TODO">TODO</span> parser</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org68ae434">3. <span class="todo TODO">TODO</span> output</a>
+<ul>
+<li><a href="#org359ff2d">3.1. <span class="todo TODO">TODO</span> Lilypond template</a></li>
+<li><a href="#org756849e">3.2. <span class="todo TODO">TODO</span> Import template</a></li>
+<li><a href="#orgd4b80d0">3.3. <span class="todo TODO">TODO</span> Interpolate template with data</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+<a href="reference/table_of_neumes.pdf">Table of Neumes</a>
+</p>
+<div id="outline-container-org73b141b" class="outline-2">
+<h2 id="org73b141b"><span class="section-number-2">1.</span> <span class="todo TODO">TODO</span> init</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-org05f2990" class="outline-3">
+<h3 id="org05f2990"><span class="section-number-3">1.1.</span> <span class="todo TODO">TODO</span> import libraries</h3>
+<div class="outline-text-3" id="text-1-1">
+<div class="org-src-container">
+<pre class="src src-python">import argparse
+import regex
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1cc38c0" class="outline-3">
+<h3 id="org1cc38c0"><span class="section-number-3">1.2.</span> <span class="todo TODO">TODO</span> take in user args</h3>
+<div class="outline-text-3" id="text-1-2">
+<ul class="org-ul">
+<li>/path/to/file.gabc</li>
+<li>in which rhythmic system to interpret</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python">#TODO take in user args
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org4fb504f" class="outline-2">
+<h2 id="org4fb504f"><span class="section-number-2">2.</span> <span class="todo TODO">TODO</span> parse data</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org781828a" class="outline-3">
+<h3 id="org781828a"><span class="section-number-3">2.1.</span> <span class="todo TODO">TODO</span> import and split gabc</h3>
+<div class="outline-text-3" id="text-2-1">
+<div class="org-src-container">
+<pre class="src src-python">example_gabc_file_path = "example.gabc"
+with open(example_gabc_file_path, 'r') as file:
+    gabc = file.read()
+
+print(f"Full GABC: {gabc}")
+
+gabc_header = gabc.split("%%")[0]
+gabc_body = gabc.split("%%")[1]
+
+print(f"GABC Header: {gabc_header}")
+print(f"GABC Body: {gabc_body}")
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6aaa8a4" class="outline-3">
+<h3 id="org6aaa8a4"><span class="section-number-3">2.2.</span> <span class="todo TODO">TODO</span> header parser</h3>
+<div class="outline-text-3" id="text-2-2">
+</div>
+<div id="outline-container-org2a59ef9" class="outline-4">
+<h4 id="org2a59ef9"><span class="section-number-4">2.2.1.</span> example input/output</h4>
+<div class="outline-text-4" id="text-2-2-1">
+</div>
+<ol class="org-ol">
+<li><a id="org8ef93db"></a>example input<br />
+<div class="outline-text-5" id="text-2-2-1-1">
+<div class="org-src-container">
+<pre class="src src-gabc">name:Deus Israel;
+office-part:Introitus;
+mode:3;
+user-notes: LU 1288;
+transcriber:Andrew Hinkley &amp; Patrick Williams;
+commentary: Tob. 7:15 &amp; 8:19, Ps. 127:1;
+annotation: IN. III;
+</pre>
+</div>
+</div>
+</li>
+<li><a id="org29a9160"></a>desired output<br />
+<div class="outline-text-5" id="text-2-2-1-2">
+<div class="org-src-container">
+<pre class="src src-lilypond">title = "Deus Israel"
+office-part = "Introitus"
+mode = 3
+user-notes = "LU 1288"
+transcriber = "Andrew Hinkley &amp; Patrick Williams"
+commentary = "Tob. 7:15 &amp; 8:19, Ps. 127:1"
+annotation = "IN. III"
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div id="outline-container-org890db5e" class="outline-4">
+<h4 id="org890db5e"><span class="section-number-4">2.2.2.</span> <span class="todo TODO">TODO</span> parser</h4>
+<div class="outline-text-4" id="text-2-2-2">
+<div class="org-src-container">
+<pre class="src src-python">def parse_gabc_header(gabc_header):
+  gabc_header_entries = gabc_header.strip().split(";\n")
+  gabc_header_dictionary = {}
+  for entry in gabc_header_entries:
+      key, value = entry.split(":", 1) # in case there are semicolons in the value
+      gabc_header_dictionary.update({key.strip(): value.strip()})
+    ly_metadata = []
+for key, value in gabc_header_dictionary.items():
+    ly_metadata.append(f"{key} = {value}")
+print(f"LilyPond Metadata: {ly_metadata}")
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org1a8ff02" class="outline-3">
+<h3 id="org1a8ff02"><span class="section-number-3">2.3.</span> <span class="todo TODO">TODO</span> body parser</h3>
+<div class="outline-text-3" id="text-2-3">
+<ul class="org-ul">
+<li class="off"><code>[&#xa0;]</code> Incorporate quilisma and oriscus noteheads on modern staff</li>
+</ul>
+<ul class="org-ul">
+<li>this is a refatoring of the body parser found in main.org
+<ul class="org-ul">
+<li>I split the file here so I can focus better</li>
+<li>after this is functional, reincorporate this back into main.org
+<ul class="org-ul">
+<li>but, still tangle to body<sub>parser.py</sub> since it is totally separate from header<sub>parser</sub>
+<ul class="org-ul">
+<li>I also want to compile this using Cython to get better performance</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li class="off"><code>[&#xa0;]</code> ensure output is what I want using Frescobaldi</li>
+</ul>
+</div>
+<div id="outline-container-org8b3a8e3" class="outline-4">
+<h4 id="org8b3a8e3"><span class="section-number-4">2.3.1.</span> example body input/output</h4>
+<div class="outline-text-4" id="text-2-3-1">
+</div>
+<ol class="org-ol">
+<li><a id="org88bb4db"></a>example gabc body input<br />
+<div class="outline-text-5" id="text-2-3-1-1">
+<p>
+<a href="file:///home/alex/Downloads/in3--deus_israel--proportional.pdf">Deus Israel</a>
+</p>
+<div class="org-src-container">
+<pre class="src src-gabc">(c4) DE(gj)us(jjj_) Is(h_)ra(h_0!iWj_//kjjo_)el(ji__) *(,)
+con(gh~)jún(hjij)gat(ih~) vos,(h_) (;)
+</pre>
+</div>
+</div>
+</li>
+<li><a id="orgb7ac5c0"></a>desired ly melody output<br />
+<div class="outline-text-5" id="text-2-3-1-2">
+<div class="org-src-container">
+<pre class="src src-lilypond">g8([ c]) c([ c] c4) a a( \slashedGrace{ \stemNeutral b16 \glissando} c4 d8[ c] \slashedGrace{ \stemNeutral d16 \glissando} c4) c( b) \divisioMinima
+g8([ \tweak #'font-size #-3 a]) a([ c b c]) b([ \tweak #'font-size #-3 a]) a4 \divisioMaior \break
+</pre>
+</div>
+</div>
+</li>
+<li><a id="orgd505096"></a>desired ly lyrics output<br />
+<div class="outline-text-5" id="text-2-3-1-3">
+<div class="org-src-container">
+<pre class="src src-lilypond">DE -- us Is -- ra -- \markup {"el" *}
+con -- jún -- gat vos,
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div id="outline-container-orgbe0932c" class="outline-4">
+<h4 id="orgbe0932c"><span class="section-number-4">2.3.2.</span> define datasets &amp; functions</h4>
+<div class="outline-text-4" id="text-2-3-2">
+</div>
+<ol class="org-ol">
+<li><a id="org716c5f4"></a><span class="done DONE">DONE</span> define LyNote<br />
+<div class="outline-text-5" id="text-2-3-2-1">
+<ul class="org-ul">
+<li>only have properties that matter for ly notation</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python">"""
+class LyNote:
+    def __init__(self, pitch_class, accidental="", octave, duration, special_neume="", liquescence=""):
+        self.pitch_class = pitch_class
+        self.accidental = accidental
+        self.octave = octave
+        self.duration = duration
+        self.special_neume = special_neume
+        self.liquescence = liquescence
+
+    def __str__(self):
+        f"{self.pitch_class}{self.accidental}{self.octave}{self.duration}{self.special_neume}{self.liquescence}"
+"""
+</pre>
+</div>
+</div>
+</li>
+<li><a id="orgbbd31da"></a><span class="done DONE">DONE</span> define datasets for translating melody based on LyNote's properties<br />
+<ol class="org-ol">
+<li><a id="org9e359e6"></a><span class="done DONE">DONE</span> pitch<sub>class</sub><br />
+<div class="outline-text-6" id="text-2-3-2-2-1">
+<ul class="org-ul">
+<li>to calulate pitch<sub>class</sub>, we will need to convert to integers as an intermediary
+<ul class="org-ul">
+<li>using those ints, we can then use clef to calculate absolute pitch<sub>class</sub></li>
+</ul></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python">gabc_positions_with_position_ints = {
+    "a": 0,
+    "b": 1,
+    "c": 2,
+    "d": 3,
+    "e": 4,
+    "f": 5,
+    "g": 6,
+    "h": 7,
+    "i": 8,
+    "j": 9,
+    "k": 10,
+    "l": 11,
+    "m": 12
+}
+gabc_positions = gabc_positions_with_position_ints.keys()
+clefs_with_position_int_of_do = {
+    "c1": 3,
+    "c2": 5,
+    "c3": 7,
+    "c4": 9,
+    "f1": 0,
+    "f2": 2,
+    "f3": 4,
+    "f4": 6
+}
+clefs = clefs_with_position_int_of_do.keys()
+distance_from_do_with_ly_pitch_classes = {
+    -9: "a",
+    -8: "b",
+    -7: "c",
+    -6: "d",
+    -5: "e",
+    -4: "f",
+    -3: "g",
+    -2: "a",
+    -1: "b",
+     0: "c",
+     1: "d",
+     2: "e",
+     3: "f",
+     4: "g",
+     5: "a",
+     6: "b"
+}
+</pre>
+</div>
+</div>
+</li>
+<li><a id="org13d7e3e"></a><span class="done DONE">DONE</span> accidentals<br />
+<div class="outline-text-6" id="text-2-3-2-2-2">
+<ul class="org-ul">
+<li><a href="http://gregorio-project.github.io/gabc/details.html#alterations">http://gregorio-project.github.io/gabc/details.html#alterations</a></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python">gabc_accidentals_with_ly_accidentals = {
+    "y":"",   # natural
+    "x":"es", # flat
+    "#":"is"  # sharp
+}
+gabc_accidentals = gabc_accidentals_with_ly_accidentals.keys()
+</pre>
+</div>
+</div>
+</li>
+<li><a id="org82fec5a"></a><span class="done DONE">DONE</span> octave<br />
+<div class="outline-text-6" id="text-2-3-2-2-3">
+<ul class="org-ul">
+<li><a href="https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry">https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry</a></li>
+<li>only the octaves that could be used in a treble clef gregorian score</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python">absolute_octaves_with_ly_octaves = {
+    3:",",
+    4:"",
+    5:"'"
+}
+absolute_octaves = absolute_octaves_with_ly_octaves.keys()
+</pre>
+</div>
+</div>
+</li>
+<li><a id="org197cddf"></a><span class="done DONE">DONE</span> duration<br />
+<div class="outline-text-6" id="text-2-3-2-2-4">
+<ul class="org-ul">
+<li><a href="https://lilypond.org/doc/v2.23/Documentation/notation/writing-rhythms">https://lilypond.org/doc/v2.23/Documentation/notation/writing-rhythms</a></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python">  proportionalism_rhythms = (
+      "16", # sixteenth
+      "8",  # eighth
+      "4",  # quarter
+      "4.", # dotted quarter
+      "2"   # half
+  )
+gabc_duration_symbols = (
+    "_", # long - quarter note if by itself
+    ".", # extra long - could be dotted quarter or half depending on context
+    "W", # quilisma - 
+    "r"
+)
+</pre>
+</div>
+</div>
+</li>
+<li><a id="org5b04f8b"></a><span class="done DONE">DONE</span> special<sub>neumes</sub><br />
+<div class="outline-text-6" id="text-2-3-2-2-5">
+<ul class="org-ul">
+<li><a href="http://gregorio-project.github.io/gabc/index.html#onenote">http://gregorio-project.github.io/gabc/index.html#onenote</a></li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-python">special_neumes = (
+    "w", # quilisma
+    "o", # oriscus
+    "-"  # initio debilis
+)
+</pre>
+</div>
+</div>
+</li>
+<li><a id="org2f7a89e"></a><span class="done DONE">DONE</span> liquescence<br />
+<div class="outline-text-6" id="text-2-3-2-2-6">
+<div class="org-src-container">
+<pre class="src src-python">liquescence = (
+    "~", # diminutive # in lilypond:  \tweak #'font-size #-3
+    "&lt;", # augmentative ascending
+    "&gt;"  # augmentative descending
+)
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+</div>
+<div id="outline-container-orgbdd2366" class="outline-4">
+<h4 id="orgbdd2366"><span class="section-number-4">2.3.3.</span> <span class="todo TODO">TODO</span> parser</h4>
+<div class="outline-text-4" id="text-2-3-3">
+<div class="org-src-container">
+<pre class="src src-python">def gabc_position_to_ly_pitch_class(clef, gabc_position): # keep this method
+    distance_from_do = gabc_positions_with_position_ints[gabc_position] - clefs_with_position_int_of_do[clef]
+    ly_pitch_class = distance_from_do_with_ly_pitch_classes[distance_from_do]
+    return ly_pitch_class
+
+ly_melody = ""
+ly_lyrics = ""
+parsing_mode = "melody"
+active_accidentals = "natural"
+melisma_index = 0
+for i, c in enumerate(gabc_body):
+    gabc_body = gabc_body.strip()
+
+    # we expect the clef to be defined first
+    if i == 0:
+        if c == "(":
+            if gabc_body[i+1:i+3] in clefs and gabc_body[i+3] == ")":
+                clef = gabc_body[i+1:i+3]
+                i += 4
+            else:
+                print("clef not defined")
+                return 0
+
+    elif c == "(":
+        parsing_mode = "melody"
+        melisma_index += 1
+        break
+    elif c == ")":
+
+        if gabc_body[i+1] == " ":
+            ly_lyrics += " "
+        else:
+            ly_lyrics += " -- "
+
+        parsing_mode = "lyrics"
+        break
+
+
+    if parsing_mode == "melody":
+        if c in gabc_positions: # pitches
+            ly_melody += gabc_position_to_ly_pitch_class(clef, c)
+        else: # modifier characters
+            match c:
+                case "_": # long duration - if by itself, quarter note
+                case ".": # longer duration - half note or dotted quarter note, depending on context
+                case "r": # if one, sixteenth grace note, if two after a dotted note, two sixteenth notes
+                case "o": # oriscus, upper auxiliary
+                case "W": # quilisma, note before, lower auxiliary
+                case "~": # diminutive liquescence
+                case "&lt;": # ascending augmentative liquescence
+                case "&gt;": # descending augmentative liquescence
+                case other:
+                    # add eighth note rhythm
+                    break
+
+
+        ly_melody += gabc_position_to_ly_pitch_class(c)
+
+    elif parsing_mode == "lyrics":
+        ly_lyrics += c
+
+
+
+
+print(f"LilyPond Melody: {ly_melody}")
+print(f"LilyPond Lyrics: {ly_lyrics}")
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org68ae434" class="outline-2">
+<h2 id="org68ae434"><span class="section-number-2">3.</span> <span class="todo TODO">TODO</span> output</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-org359ff2d" class="outline-3">
+<h3 id="org359ff2d"><span class="section-number-3">3.1.</span> <span class="todo TODO">TODO</span> Lilypond template</h3>
+<div class="outline-text-3" id="text-3-1">
+<div class="org-src-container">
+<pre class="src src-lilypond">\version "2.24.3"
+\include "gregorian.ly"
+
+\header {
+  % ly_metadata
+}
+
+global = {
+  \cadenzaOn
+  \omit Staff.TimeSignature
+  \key c \major
+}
+
+melody = \relative c'' {
+  \global
+  % ly_melody
+}
+
+text = \lyricmode {
+  % ly_lyrics
+}
+
+\score {
+  &lt;&lt;
+  \new Staff {
+    \context Voice = "vocal" { \melody }
+  }
+  \new Lyrics \lyricsto "vocal" \text
+  &gt;&gt;
+}
+% tangle from Org-Mode on &lt;2024-06-28&gt;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org756849e" class="outline-3">
+<h3 id="org756849e"><span class="section-number-3">3.2.</span> <span class="todo TODO">TODO</span> Import template</h3>
+<div class="outline-text-3" id="text-3-2">
+<div class="org-src-container">
+<pre class="src src-python">with open("template.ly", "r") as file:
+    ly_template = file.read()
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd4b80d0" class="outline-3">
+<h3 id="orgd4b80d0"><span class="section-number-3">3.3.</span> <span class="todo TODO">TODO</span> Interpolate template with data</h3>
+<div class="outline-text-3" id="text-3-3">
+<div class="org-src-container">
+<pre class="src src-python">ly_template_interpolated = ly_template
+ly_template_interpolated = ly_template_interpolated.replace("% ly_metadeta", ''.join(ly_metadata))
+ly_template_interpolated = ly_template_interpolated.replace("% ly_melody", ly_melody)
+ly_template_interpolated = ly_template_interpolated.replace("% ly_lyrics", ly_lyrics)
+
+with open("chant.ly", "w") as file:
+    file.write(ly_template_interpolated)
+
+# tangled from Org-Mode on &lt;2024-06-28&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Alex Harter</p>
+<p class="date">Created: 2024-07-03 Wed 09:20</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
