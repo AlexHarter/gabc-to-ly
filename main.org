@@ -2,20 +2,21 @@
 #+AUTHOR: Alex Harter
 [[file:reference/table_of_neumes.pdf][Table of Neumes]]
 #+PROPERTY: header-args python :tangle yes :tangle main.py
-* TODO init
-*** TODO import libraries
+* WAIT init
+*** DONE import libraries
 #+BEGIN_SRC python :tangle no
   import argparse
   import regex
 #+END_SRC
-*** TODO take in user args
+*** WAIT take in user args
 - /path/to/file.gabc
 - in which rhythmic system to interpret
 #+BEGIN_SRC python :tangle no
 #TODO take in user args
 #+END_SRC
-* TODO parse data
-** TODO import and split gabc
+* WAIT parse data
+- wait until I'm done 
+** DONE import and split gabc
 #+BEGIN_SRC python
 example_gabc_file_path = "example.gabc"
 with open(example_gabc_file_path, 'r') as file:
@@ -54,6 +55,7 @@ commentary = "Tob. 7:15 & 8:19, Ps. 127:1"
 annotation = "IN. III"
 #+END_SRC
 **** TODO parser
+- [ ] translate relevant GABC header entries to the corresponding Ly keyword when possible
 #+BEGIN_SRC python
   def parse_gabc_header(gabc_header):
     gabc_header_entries = gabc_header.strip().split(";\n")
@@ -66,28 +68,37 @@ annotation = "IN. III"
       ly_metadata.append(f"{key} = {value}")
   print(f"LilyPond Metadata: {ly_metadata}")
 #+END_SRC
-** TODO body parser
+** WAIT body parser
+- [ ] apply correct body parser based on user args
+  - wait until my Proportional Parser is functional
 *** TODO [[file:body_parser-proportional.org][Proportionalist Rhythm]]
-*** WAIT classical Solesmes rhythm
-*** WAIT Editio Vaticana rhythm
+*** WAIT Classical Solesmes Rhythm
+*** WAIT Editio Vaticana Rhythm
 * TODO output
-*** TODO Lilypond template
+** TODO Lilypond template
+- "gregorian.ly" is not helpful to include
+  - it causes problems because it is really meant for quadratic notation
+    - spacing
+    - bar lines
+  - better to define exactly what I need in the template
+    - use "/usr/share/lilypond/2.24.3/ly/gregorian.ly" to start
+    - perhaps make my own extension?
 #+BEGIN_SRC lilypond :tangle template.ly
 \version "2.24.3"
-\include "gregorian.ly"
 
 \header {
   % ly_metadata
 }
 
 global = {
-  \cadenzaOn
+  \candenzaOn
   \omit Staff.TimeSignature
   \key c \major
 }
 
 melody = \relative c'' {
   \global
+
   % ly_melody
 }
 
@@ -103,22 +114,26 @@ text = \lyricmode {
   \new Lyrics \lyricsto "vocal" \text
   >>
 }
-% tangle from Org-Mode on <2024-06-28>
+% template generated from Org-Mode on <%DATE>
+% generated from https://github.com/AlexHarter/gabc-to-ly
 #+END_SRC
-*** TODO Import template
+** TODO Import template
 #+BEGIN_SRC python
 with open("template.ly", "r") as file:
     ly_template = file.read()
 #+END_SRC
-*** TODO Interpolate template with data
+** TODO Interpolate template with data
 #+BEGIN_SRC python
-ly_template_interpolated = ly_template
-ly_template_interpolated = ly_template_interpolated.replace("% ly_metadeta", ''.join(ly_metadata))
-ly_template_interpolated = ly_template_interpolated.replace("% ly_melody", ly_melody)
-ly_template_interpolated = ly_template_interpolated.replace("% ly_lyrics", ly_lyrics)
+  ly_template_interpolated = ly_template
+  ly_template_interpolated = ly_template_interpolated.replace("% ly_metadeta", ''.join(ly_metadata))
+  ly_template_interpolated = ly_template_interpolated.replace("% ly_melody", ly_melody)
+  ly_template_interpolated = ly_template_interpolated.replace("% ly_lyrics", ly_lyrics)
 
-with open("chant.ly", "w") as file:
-    file.write(ly_template_interpolated)
-
-# tangled from Org-Mode on <2024-06-28>
+  with open("chant.ly", "w") as file:
+      file.write(ly_template_interpolated)
+#+END_SRC
+** WAIT Footnotes
+- [ ] interpolate with actual date
+#+BEGIN_SRC python
+# tangled from Org-Mode on <#DATE>
 #+END_SRC

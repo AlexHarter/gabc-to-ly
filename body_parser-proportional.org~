@@ -1,2 +1,160 @@
 #+TITLE: gabc body parser
 #+SUBTITLE: According to Proportionalist Rhythmic Interpretation
+#+PROPERTY: header-args python :tangle yes :tangle body_parser-proportional.py
+* Model Input/Output
+** Example gabc body Input
+[[file:MODEL_INPUT-Deus_Israel.pdf][gabc PDF]]
+#+BEGIN_SRC python
+  gabc_body =
+  """
+      (c4) DE(gj)us(jjj_) Is(h_)ra(h_0!iWj_//kjjo_)el(ji__) *(,)
+      con(gh~)jún(hjij)gat(ih~) vos,(h_) (;)
+  """
+#+END_SRC
+** Desired LilyPond Melody Output
+[[file:MODEL_OUTPUT-Deus_Israel.pdf][ly pdf]]
+#+BEGIN_SRC lilypond :tangle no
+g8([ c]) c([ c] c4) a a( \slashedGrace{ \stemNeutral b16 \glissando} c4 d8[ c] \slashedGrace{ \stemNeutral d16 \glissando} c4) c( b) \divisioMinima
+g8([ \tweak #'font-size #-3 a]) a([ c b c]) b([ \tweak #'font-size #-3 a]) a4 \divisioMaior \break
+#+END_SRC
+** Desired LilyPond Lyrics Output
+#+BEGIN_SRC lilypond :tangle no
+DE -- us Is -- ra -- \markup {"el" *}
+con -- jún -- gat vos,
+#+END_SRC
+* Parser
+** define datasets & functions
+*** define LyNote class
+#+BEGIN_SRC python
+class LyNote:
+    def __init__(self, pitch_class, accidental="", octave, duration, special_neume="", liquescence=""):
+        self.pitch_class = pitch_class
+        self.accidental = accidental
+        self.octave = octave
+        self.duration = duration
+        self.special_neume = special_neume
+        self.liquescence = liquescence
+
+    def __str__(self):
+        f"{self.pitch_class}{self.accidental}{self.octave}{self.duration}{self.special_neume}{self.liquescence}"
+#+END_SRC
+*** datasets - add as I need them
+#+BEGIN_SRC python
+gabc_positions_with_position_ints = {
+    "a": 0,
+    "b": 1,
+    "c": 2,
+    "d": 3,
+    "e": 4,
+    "f": 5,
+    "g": 6,
+    "h": 7,
+    "i": 8,
+    "j": 9,
+    "k": 10,
+    "l": 11,
+    "m": 12
+}
+gabc_positions = gabc_positions_with_position_ints.keys()
+clefs_with_position_int_of_do = {
+    "c1": 3,
+    "c2": 5,
+    "c3": 7,
+    "c4": 9,
+    "f1": 0,
+    "f2": 2,
+    "f3": 4,
+    "f4": 6
+}
+clefs = clefs_with_position_int_of_do.keys()
+distance_from_do_with_ly_pitch_classes = {
+    -9: "a",
+    -8: "b",
+    -7: "c",
+    -6: "d",
+    -5: "e",
+    -4: "f",
+    -3: "g",
+    -2: "a",
+    -1: "b",
+     0: "c",
+     1: "d",
+     2: "e",
+     3: "f",
+     4: "g",
+     5: "a",
+     6: "b"
+}
+#+END_SRC
+*** functions
+**** Calculate LilyPond Pitch Class from a given gabc Position
+#+BEGIN_SRC python
+  def gabc_position_to_ly_pitch_class(clef, gabc_position): # keep this method
+      distance_from_do = gabc_positions_with_position_ints[gabc_position] - clefs_with_position_int_of_do[clef]
+      ly_pitch_class = distance_from_do_with_ly_pitch_classes[distance_from_do]
+      return ly_pitch_class
+#+END_SRC
+**** Melody-by-Syllable Parser
+- I choose a separate function for the melody within the syllable because it is guaranteed to be self-contained, apart from the clef.
+#+BEGIN_SRC python
+  def parse_syllable_melody(syllable_melody):
+      if parsing_mode == "melody":
+	      if c in gabc_positions: # pitches
+		  ly_melody += gabc_position_to_ly_pitch_class(clef, c)
+	      else: # modifier characters
+		  match c:
+		      case "_": # long duration - if by itself, quarter note
+		      case ".": # longer duration - half note or dotted quarter note, depending on context
+		      case "r": # if one, sixteenth grace note, if two after a dotted note, two sixteenth notes
+		      case "o": # oriscus, upper auxiliary
+		      case "W": # quilisma, note before, lower auxiliary
+		      case "~": # diminutive liquescence
+		      case "<": # ascending augmentative liquescence
+		      case ">": # descending augmentative liquescence
+		      case other:
+		      # add eighth note rhythm
+		      break
+
+#+END_SRC
+**** Main Parser
+#+BEGIN_SRC python
+  def parse_gabc_body_to_ly_melody_and_lyrics(gabc_body):
+      for i, c in enumerate(gabc_body):
+	  gabc_body = gabc_body.strip()
+
+	  # we expect the clef to be defined first
+	  if i == 0:
+	      if c == "(":
+
+		  if gabc_body[i+1:i+3] in clefs and gabc_body[i+3] == ")":
+		      clef = gabc_body[i+1:i+3]
+		      i += 4
+		  else:
+		      print("clef not defined")
+		      return 0
+
+	  elif c == "(":
+	      parsing_mode = "melody"
+	      melisma_index += 1
+	      break
+	  elif c == ")":
+
+	  if gabc_body[i+1] == " ":
+	      ly_lyrics += " "
+	  else:
+	      ly_lyrics += " -- "
+
+	  parsing_mode = "lyrics"
+	  break
+
+	  elif parsing_mode == "lyrics":
+	      ly_lyrics += c
+#+END_SRC
+* Test
+#+BEGIN_SRC python
+
+  print("LilyPond Melody:")
+  print(ly_melody)
+  print("LilyPond Lyrics:")
+  print(ly_lyrics)
+#+END_SRC

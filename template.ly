@@ -6,15 +6,16 @@
 }
 
 global = {
-  \cadenzaOn
+  \candenzaOn
   \omit Staff.TimeSignature
   \key c \major
 }
 
 melody = \relative c'' {
   \global
+
   % ly_melody
-}
+
 
 text = \lyricmode {
   % ly_lyrics
@@ -28,4 +29,5 @@ text = \lyricmode {
   \new Lyrics \lyricsto "vocal" \text
   >>
 }
-% tangle from Org-Mode on <2024-06-28>
+% template generated from Org-Mode on <%DATE>
+% generated from https://github.com/AlexHarter/gabc-to-ly
