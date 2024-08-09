@@ -1,8 +1,29 @@
-\version "2.24.3"
-\include "gregorian.ly"
+\version "2.25.16"
 
 \header {
   % ly_metadata
+}
+
+oriscus = {
+  \once \override NoteHead.stencil = #ly:text-interface::print
+  \once \override NoteHead.text = \markup \musicglyph "noteheads.ssolesmes.oriscus"
+}
+
+quilisma = {
+  \once \override NoteHead.stencil = #ly:text-interface::print
+  \once \override NoteHead.text = \markup \musicglyph "noteheads.svaticana.quilisma"
+}
+
+liquescentDiminutive = {
+
+}
+
+liquescentAugmentativeAscending = {
+
+}
+
+liquescentAugmentativeDescending = {
+
 }
 
 global = {
@@ -15,7 +36,7 @@ melody = \relative c'' {
   \global
 
   % ly_melody
-
+}
 
 text = \lyricmode {
   % ly_lyrics
@@ -30,4 +51,4 @@ text = \lyricmode {
   >>
 }
 % template generated from Org-Mode on <%DATE>
-% generated from https://github.com/AlexHarter/gabc-to-ly
+% score generated from https://github.com/AlexHarter/gabc-to-ly
