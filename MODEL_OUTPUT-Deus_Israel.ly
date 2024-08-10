@@ -52,9 +52,15 @@ initioDebilis = {
   \once \override Stem.transparent = ##t
 }
 
+strophicus = {
+  \once \override NoteHead.stencil = #ly:text-interface::print
+  \once \override NoteHead.text = \markup \musicglyph "noteheads.ssolesmes.stropha"
+  \once \set fontSize = 4
+}
+
 melody = \relative c'' {
   \global
-  g8([ c]) c([ c] c4) a a( \quilisma b16 c4 d8[ c] \oriscus c4) c( b) \bar "'"
+  g8([ c]) \strophicus c([ \strophicus c] \strophicus c4) a a( \quilisma b16 c4 d8[ c] \oriscus c4) c( b) \bar "'"
   g8([ \liquescentDiminutive a]) a([ c b c]) b([ \liquescentDiminutive a]) a4 \bar "," \break
   g4 a g g8([ f] a4) a a( \quilisma b16 c4 b4. a16[ g] a4) a( g2) \bar ","
   g8([ a] c[ b]) c4 c c8([ c] c4) a \bar "," \break
@@ -102,5 +108,12 @@ text = \lyricmode {
   }
   \new Lyrics \lyricsto "vocal" \text
   >>
+  \layout {
+    \context {
+      \Staff
+      \consists Custos_engraver
+      \override Custos.style = #'medicaea
+    }
+  }
 }
 % score generated from https://github.com/AlexHarter/gabc-to-ly on <2024-08-07>

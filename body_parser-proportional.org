@@ -1,0 +1,3 @@
+#+TITLE: gabc body parser
+#+SUBTITLE: According to Proportionalist Rhythmic Interpretation
+#+PROPERTY: header-args python :tangle yes :tangle body_parser-proportional.py

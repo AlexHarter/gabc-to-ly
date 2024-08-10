@@ -261,8 +261,7 @@ distance_from_do_with_ly_pitch_classes = {
 *** WAIT Editio Vaticana Rhythm
 * TODO output
 ** TODO Lilypond template
-- http://lilypond.org/doc/v2.24/Documentation/ed/lily-2b6f18cd.png
-- http://lilypond.org/doc/v2.24/Documentation/30/lily-9593d57f.png
+- [[https://lilypond.org/doc/v2.24/Documentation/notation/the-emmentaler-font#vaticana-glyphs][Lilypond Emmentaler Font]]
 #+BEGIN_SRC lilypond :tangle template.ly
 \version "2.25.16"
 
