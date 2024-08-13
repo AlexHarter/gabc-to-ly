@@ -78,20 +78,18 @@ annotation = "IN. III"
 **** Model Input/Output
 ***** Example gabc body Input
 [[file:MODEL_INPUT-Deus_Israel.pdf][gabc PDF]]
-#+BEGIN_SRC python
-  gabc_body =
-  """
-      (c4) DE(gj)us(jjj_) Is(h_)ra(h_0!iWj_//kjjo_)el(ji__) *(,)
-      con(gh~)jún(hjij)gat(ih~) vos,(h_) (;)
-      et(g_) i(h_)pse(g_) sit(gfh_) vo(h_)bís(h_0!iwji.__H~rG~rhv_)cum,(hg.__) (;)
-  """
+#+BEGIN_SRC gabc
+  (c4) DE(gj)us(jjj_) Is(h_)ra(h_0!iWj_//kjjo_)el(ji__) *(,)
+  con(gh~)jún(hjij)gat(ih~) vos,(h_) (;)
+  et(g_) i(h_)pse(g_) sit(gfh_) vo(h_)bís(h_0!iwji.__H~rG~rhv_)cum,(hg.__) (;)
+
 #+END_SRC
 ***** Desired LilyPond Melody Output
 [[file:MODEL_OUTPUT-Deus_Israel.pdf][ly pdf]]
 #+BEGIN_SRC lilypond :tangle no
-g8([ c]) c([ c] c4) a a( \slashedGrace{ \stemNeutral b16 \glissando} c4 d8[ c] \slashedGrace{ \stemNeutral d16 \glissando} c4) c( b) \bar "'"
-g8([ \tweak #'font-size #-3 a]) a([ c b c]) b([ \tweak #'font-size #-3 a]) a4 \bar "," \break
-g4 a g g8([ f] a4) a a( \slashedGrace{ \stemNeutral b16 \glissando} c4 b4. a16[ g] a4) a( g2) \bar ","
+  g8([ c]) c([ c] c4) a a( \quilisma b16 c4 d8[ c] \oriscus c4) c( b) \bar "'"
+  g8([ \liquescentDiminutive a]) a([ c b c]) b([ \liquescentDiminutive a]) a4 \bar "," \break
+  g4 a g g8([ f] a4) a a( \quilisma b16 c4 b4. a16[ g] a4) a( g2) \bar ","
 #+END_SRC
 ***** Desired LilyPond Lyrics Output
 #+BEGIN_SRC lilypond :tangle no
@@ -263,48 +261,56 @@ distance_from_do_with_ly_pitch_classes = {
 ** TODO Lilypond template
 - [[https://lilypond.org/doc/v2.24/Documentation/notation/the-emmentaler-font#vaticana-glyphs][Lilypond Emmentaler Font]]
 #+BEGIN_SRC lilypond :tangle template.ly
-\version "2.25.16"
+\version "2.24.4"
 
 \header {
-  % ly_metadata
+  %ly_metadata
 }
 
 oriscus = {
   \once \override NoteHead.stencil = #ly:text-interface::print
   \once \override NoteHead.text = \markup \musicglyph "noteheads.ssolesmes.oriscus"
+  \once \set fontSize = 3
 }
 
 quilisma = {
   \once \override NoteHead.stencil = #ly:text-interface::print
   \once \override NoteHead.text = \markup \musicglyph "noteheads.svaticana.quilisma"
+  \once \set fontSize = 3
+  \once \override Stem.transparent = ##t
 }
 
 liquescentDiminutive = {
-
+  \once \set fontSize = -3
 }
 
 liquescentAugmentativeAscending = {
-
+  \once \override NoteHead.stencil = #ly:text-interface::print
+  \once \override NoteHead.text = \markup \musicglyph "noteheads.ssolesmes.auct.asc"
+  \once \set fontSize = 3
 }
 
 liquescentAugmentativeDescending = {
-
+  \once \override NoteHead.stencil = #ly:text-interface::print
+  \once \override NoteHead.text = \markup \musicglyph "noteheads.ssolesmes.auct.desc"
+  \once \set fontSize = 3
 }
 
 global = {
+  \key c \major
   \candenzaOn
   \omit Staff.TimeSignature
-  \key c \major
+  \override Staff.StaffSymbol.color = #darkred
 }
 
-melody = \relative c'' {
+melody = \transpose c c \relative c'' {
   \global
 
-  % ly_melody
+  %ly_melody
 }
 
 text = \lyricmode {
-  % ly_lyrics
+  %ly_lyrics
 }
 
 \score {
@@ -314,6 +320,14 @@ text = \lyricmode {
   }
   \new Lyrics \lyricsto "vocal" \text
   >>
+  \layout {
+    \context {
+      \Staff
+      instrumentName = %mode
+      \consists Custos_engraver
+      \override Custos.style = #'medicaea
+    }
+  }
 }
 % template generated from Org-Mode on <%DATE>
 % score generated from https://github.com/AlexHarter/gabc-to-ly

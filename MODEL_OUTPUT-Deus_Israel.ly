@@ -1,3 +1,4 @@
+%\version "2.24.4"
 \version "2.25.16"
 
 \header {
@@ -47,20 +48,13 @@ liquescentAugmentativeDescending = {
 }
 
 initioDebilis = {
-  %\once \slashedGrace
   \once \set fontSize = -3
   \once \override Stem.transparent = ##t
 }
 
-strophicus = {
-  \once \override NoteHead.stencil = #ly:text-interface::print
-  \once \override NoteHead.text = \markup \musicglyph "noteheads.ssolesmes.stropha"
-  \once \set fontSize = 4
-}
-
-melody = \relative c'' {
+melody = \transpose c c \relative c'' {
   \global
-  g8([ c]) \strophicus c([ \strophicus c] \strophicus c4) a a( \quilisma b16 c4 d8[ c] \oriscus c4) c( b) \bar "'"
+  g8([ c]) c([ c] c4) a a( \quilisma b16 c4 d8[ c] \oriscus c4) c( b) \bar "'"
   g8([ \liquescentDiminutive a]) a([ c b c]) b([ \liquescentDiminutive a]) a4 \bar "," \break
   g4 a g g8([ f] a4) a a( \quilisma b16 c4 b4. a16[ g] a4) a( g2) \bar ","
   g8([ a] c[ b]) c4 c c8([ c] c4) a \bar "," \break
@@ -89,10 +83,10 @@ text = \lyricmode {
   et nunc, Dó -- mi -- ne,
   fac e -- os plé -- ni -- us
   be -- ne -- dí -- ce -- re te.
-  \markup{ \italic T.P. "Al"} -- le -- lú -- ia,
+  \markup { \italic T.P. "Al"} -- le -- lú -- ia,
   al -- le -- lú -- ia.
   
-  Be -- á -- ti om -- nes qui ti -- ment Dó -- mi -- \markup{"num:" *}
+  Be -- á -- ti om -- nes qui ti -- ment Dó -- mi -- \markup {"num:" *}
   qui ám -- bu -- lant in vi -- is e -- jus.
   
   Gló -- ri -- a Pa -- tri...
@@ -111,6 +105,7 @@ text = \lyricmode {
   \layout {
     \context {
       \Staff
+      instrumentName = "IN.III"
       \consists Custos_engraver
       \override Custos.style = #'medicaea
     }
